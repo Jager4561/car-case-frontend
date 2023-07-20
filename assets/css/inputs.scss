@@ -1,0 +1,49 @@
+.input_container {
+  @apply w-full flex flex-col items-start;
+
+  label {
+    @apply text-xs font-light text-zinc-400 mb-1;
+  }
+
+  input, select {
+    @apply w-full h-10 bg-zinc-800 rounded-md px-3 text-sm font-semibold;
+    @apply focus:outline-none focus:ring-0;
+  }
+
+  input::placeholder {
+    @apply text-zinc-500;
+  }
+
+  input:disabled {
+    @apply bg-zinc-700 text-zinc-500 placeholder:text-zinc-600 cursor-not-allowed;
+  }
+
+  .error {
+    @apply w-full h-auto grid mt-1 mb-2;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease-in-out;
+    transform-origin: top;
+
+    &__container {
+      @apply w-full h-auto overflow-hidden;
+    }
+
+    &__content {
+      @apply w-full h-auto text-xs font-light bg-red-600 bg-opacity-50 p-1.5 rounded-md text-white text-opacity-75 overflow-hidden;
+    }
+  }
+
+  .visible {
+    grid-template-rows: 1fr;
+  }
+}
+
+.primary_button {
+  @apply w-auto h-10 flex items-center justify-center text-white bg-darkCyan rounded-md px-6 py-2 text-sm font-semibold duration-150 cursor-pointer;
+  @apply hover:filter hover:brightness-110;
+}
+
+.secondary_button {
+  @apply w-auto h-10 flex items-center justify-center text-white bg-zinc-700 rounded-md px-6 py-2 text-sm font-semibold duration-150 cursor-pointer;
+  @apply hover:bg-zinc-600;
+}
