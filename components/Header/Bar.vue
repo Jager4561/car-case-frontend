@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/vue/24/outline';
+import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/vue/24/outline';
+import { HomeIcon, SwatchIcon, ArchiveBoxIcon, ChatBubbleLeftEllipsisIcon, InformationCircleIcon, UserPlusIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/solid';
 
-const route = useRoute();
+const { isLoggedIn } = useAuthState();
 const mobileMenuOpen = ref(false);
-const filtersOpen = ref(false);
 const notificationsOpen = ref(false);
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false;
 };
 
 const toggleNotifications = () => {
@@ -29,235 +33,226 @@ const isClickedOutsideNotifications = (event: MouseEvent) => {
   }
 };
 
+const mobileMenuButtonRef = ref<HTMLButtonElement | null>(null);
+const mobileMenuRef = ref<HTMLDivElement | null>(null);
+const isClickedOutsideMenu = (event: MouseEvent) => {
+  if (mobileMenuOpen.value && mobileMenuButtonRef.value && mobileMenuRef.value) {
+    if (
+      !mobileMenuButtonRef.value.contains(event.target as Node) &&
+      !mobileMenuRef.value.contains(event.target as Node) &&
+      event.target !== mobileMenuButtonRef.value &&
+      event.target !== mobileMenuRef.value
+    ) {
+      mobileMenuOpen.value = false;
+    }
+  }
+};
+
 onMounted(() => {
   window.addEventListener('click', isClickedOutsideNotifications);
-});
-
-watch(route, () => {
-  mobileMenuOpen.value = false;
+  window.addEventListener('click', isClickedOutsideMenu);
 });
 </script>
 
 <template>
   <header>
-    <div class="header_container">
-      <div class="mobile_menu">
-        <button class="icon_button" @click="toggleMobileMenu" title="Otwórz/Zamknij menu">
-          <Transition name="fast-fade" mode="out-in">
-            <Bars3Icon v-if="!mobileMenuOpen" class="w-6 h-6" />
-            <XMarkIcon v-else class="w-6 h-6" />
-          </Transition>
-        </button>
-      </div>
-      <div class="logo">
-        <NuxtLink to="/">
-          <h1><span class="highlight">CAR</span>CASE</h1>
-        </NuxtLink>
-      </div>
-      <div class="search_and_filters">
-        <div class="input_container">
-          <MagnifyingGlassIcon class="w-6 h-6 icon" />
-          <input type="text" placeholder="Szukaj..." />
-        </div>
-        <button class="icon_button" :class="{active: filtersOpen}">
-          <AdjustmentsHorizontalIcon class="w-6 h-6" />
-        </button>
-        <div class="filters-modal">
-          <HeaderFilters />
-        </div>
-      </div>
-      <div class="account">
-        <NuxtLink v-if="false" to="/zaloguj" class="primary_button">
-          <span>Zaloguj się</span>
-        </NuxtLink>
-        <NuxtLink v-if="false" to="/zaloguj" class="icon_button">
-          <ArrowRightOnRectangleIcon class="w-6 h-6 icon" />
-        </NuxtLink>
-        <template v-if="true">
-          <button ref="notificationsButton" aria-label="Powiadomienia" class="notifications icon_button" :class="{active: notificationsOpen}" @click="toggleNotifications()">
-            <BellIcon class="w-6 h-6" />
-            <span class="mark"></span>
-          </button>
-          <button aria-label="Profil" class="profile">
-            <NuxtImg src="revenant.png"></NuxtImg>
-            <div class="username">
-              <span>Jager456</span>
-            </div>
-          </button>
-          <div ref="notificationsModal" class="notifications_modal">
-            <HeaderNotifications v-model="notificationsOpen" />
-          </div>
-        </template>
-      </div>
-    </div>
-    <div class="search_filters">
-      <MagnifyingGlassIcon class="w-6 h-6 icon" />
-      <input class="search_input" type="text" placeholder="Szukaj..." />
-      <button class="icon_button">
-        <AdjustmentsHorizontalIcon class="w-6 h-6" />
+    <div class="start">
+      <button ref="mobileMenuButtonRef" aria-label="Otwórz/Zamknij menu" class="menu-button icon-button icon-button__secondary icon-button__medium" @click="toggleMobileMenu()">
+        <Transition name="fade" mode="out-in">
+          <Bars3Icon v-if="!mobileMenuOpen" class="icon" />
+          <XMarkIcon v-else class="icon" />
+        </Transition>
       </button>
+      <div class="logo">Car<span class="highlight">Case</span></div>
+      <nav class="nav">
+        <NuxtLink to="/" class="nav__link" active-class="nav__active"> Główna </NuxtLink>
+        <NuxtLink to="/modele" class="nav__link" active-class="nav__active"> Modele </NuxtLink>
+        <NuxtLink to="/moje-dokumentacje" class="nav__link" active-class="nav__active"> Moje dokumetacje </NuxtLink>
+        <NuxtLink to="/moje-opinie" class="nav__link" active-class="nav__active"> Moje opinie </NuxtLink>
+        <NuxtLink to="/o-aplikacji" class="nav__link" active-class="nav__active"> O aplikacji </NuxtLink>
+      </nav>
     </div>
-    <Transition name="menu">
-      <div v-if="mobileMenuOpen" class="mobile_menu_container">
-        <SideNav />
-      </div>
-    </Transition>
+    <div class="end">
+      <template v-if="isLoggedIn">
+        <button ref="notificationsButton" aria-label="Powiadomienia" class="notifications icon_button" :class="{ active: notificationsOpen }" @click="toggleNotifications()">
+          <BellIcon class="w-6 h-6" />
+          <span class="mark"></span>
+        </button>
+        <HeaderNotifications v-model="notificationsOpen"></HeaderNotifications>
+        <NuxtLink to="/konto" aria-label="Profil" class="profile" activeClass="active">
+          <NuxtImg src="revenant.png"></NuxtImg>
+          <div class="username">
+            <span>Jager456</span>
+          </div>
+        </NuxtLink>
+      </template>
+      <template v-if="!isLoggedIn">
+        <NuxtLink to="/zaloguj" class="login-desktop text-button text-button__medium text-button__primary">
+          Zaloguj się
+        </NuxtLink>
+        <NuxtLink to="/zarejestruj" class="register-desktop text-button text-button__medium text-button__secondary">
+          Zarejestruj się
+        </NuxtLink>
+        <NuxtLink to="/zaloguj" class="login-mobile icon-button icon-button__medium icon-button__primary">
+          <ArrowRightOnRectangleIcon class="icon" />
+        </NuxtLink>
+        <NuxtLink to="/zarejestruj" class="register-mobile icon-button icon-button__medium icon-button__secondary">
+          <UserPlusIcon class="icon" />
+        </NuxtLink>
+      </template>
+    </div>
   </header>
+  <Transition name="menu">
+    <div v-show="mobileMenuOpen" class="mobile-menu">
+      <div ref="mobileMenuRef" class="mobile-menu__wrapper">
+        <NuxtLink to="/" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+          <HomeIcon class="icon" />
+          <span> Główna </span>
+        </NuxtLink>
+        <NuxtLink to="/modele" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+          <SwatchIcon class="icon" />
+          <span> Modele </span>
+        </NuxtLink>
+        <NuxtLink to="/moje-dokumentacje" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+          <ArchiveBoxIcon class="icon" />
+          <span> Moje dokumentacje </span>
+        </NuxtLink>
+        <NuxtLink to="/moje-opinie" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+          <ChatBubbleLeftEllipsisIcon class="icon" />
+          <span> Moje opinie </span>
+        </NuxtLink>
+        <NuxtLink to="/o-aplikacji" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+          <InformationCircleIcon class="icon" />
+          <span> O aplikacji </span>
+        </NuxtLink>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style scoped lang="scss">
 header {
-  @apply fixed top-0 left-0 w-full h-20 bg-zinc-900 z-50;
-  @apply lg:h-24;
+  @apply fixed top-0 left-0 w-full h-20 flex items-center justify-between bg-zinc-900 border-b border-b-zinc-700 z-50 px-4 py-3;
+  @apply lg:h-20 md:px-6;
 
-  .header_container {
-    @apply w-full h-full max-w-screen-xl mx-auto flex items-center justify-between px-6 py-4;
+  .start {
+    @apply w-auto flex items-center;
 
-    .mobile_menu {
-      @apply w-1/4 h-auto;
+    .menu-button {
+      @apply mr-2;
       @apply lg:hidden;
+
+      .icon {
+        @apply w-7 h-7;
+      }
     }
 
     .logo {
-      @apply w-2/4 h-auto flex items-center justify-center;
-      @apply lg:justify-start lg:w-1/4;
+      @apply text-2xl font-black leading-5 uppercase;
+      @apply md:mr-10;
 
-      h1 {
-        @apply text-2xl font-black leading-5;
-
-        .highlight {
-          @apply text-darkCyan;
-        }
+      .highlight {
+        @apply text-darkCyan;
       }
     }
 
-    .search_and_filters {
-      @apply hidden w-1/2 h-auto items-center space-x-2 relative;
+    .nav {
+      @apply hidden items-center space-x-1;
       @apply lg:flex;
-      .input_container {
-        @apply flex-grow w-full h-auto relative;
 
-        .icon {
-          @apply absolute top-2 left-2 text-zinc-400 z-10;
-        }
-
-        input {
-          @apply w-full h-10 bg-zinc-800 rounded-md pl-10 pr-4 text-sm font-semibold;
-          @apply focus:outline-none focus:ring-0;
-        }
+      &__link {
+        @apply block w-auto h-auto text-sm font-light rounded-md relative duration-200 px-3 py-1.5;
+        @apply hover:text-darkCyan;
       }
 
-      .icon_button {
-        @apply w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-gray-400 duration-150;
-        @apply hover:bg-zinc-700 hover:text-white;
-      }
-
-      .icon_button.active {
-        @apply bg-zinc-700 text-white;
-      }
-
-      .filters-modal {
-        @apply fixed top-32 right-0 w-full h-[calc(100vh-8rem)] z-50;
-        @apply lg:absolute lg:top-24 lg:right-0 lg:w-full lg:h-auto;
+      &__active {
+        @apply bg-zinc-800 font-normal text-darkCyan;
       }
     }
+  }
 
-    .account {
-      @apply w-1/4 h-auto flex items-center justify-end space-x-2 relative;
-
-      .primary_button {
-        @apply hidden w-auto h-auto items-center space-x-2 text-white bg-darkCyan rounded-md px-6 py-2 text-sm font-semibold duration-150;
-        @apply hover:filter hover:brightness-110;
-        @apply lg:flex;
-
-        .icon {
-          @apply w-4 h-4;
-        }
-      }
-
-      .notifications {
-        @apply flex relative;
-
-        .mark {
-          @apply absolute w-2 h-2 bg-red-600 bottom-2 right-2 rounded-full;
-        }
-      }
-
-      .notifications.active {
-        @apply bg-zinc-700 text-white;
-      }
-
-      .profile {
-        @apply w-auto h-10 rounded-full flex items-center justify-center relative overflow-hidden duration-300;
-        @apply hover:bg-zinc-700;
-
-        img {
-          @apply w-10 h-10 rounded-full object-cover object-center;
-        }
-
-        .username {
-          @apply max-w-0 block text-sm text-zinc-200 duration-300;
-        }
-      }
-
-      @screen lg {
-        .profile:hover {
-          .username {
-            @apply max-w-[6rem];
-
-            span {
-              @apply block w-auto h-auto pl-2 pr-3;
-            }
-          }
-        }
-      }
-
-      .notifications_modal {
-        @apply fixed top-20 right-0 w-full h-[calc(100vh-5rem)] z-50;
-        @apply lg:absolute lg:top-20 lg:right-0 lg:w-96 lg:h-auto;
-      }
-    }
+  .end {
+    @apply flex items-center justify-end space-x-2;
 
     .icon_button {
       @apply w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-gray-400 duration-150;
       @apply lg:hover:bg-zinc-700 lg:hover:text-white lg:hidden;
     }
+    .notifications {
+      @apply flex relative;
+
+      .mark {
+        @apply absolute w-2 h-2 bg-red-600 bottom-2 right-2 rounded-full;
+      }
+    }
+
+    .notifications.active {
+      @apply bg-zinc-700 text-white;
+    }
+
+    .profile {
+      @apply w-auto h-10 rounded-full flex items-center bg-zinc-800 justify-center relative overflow-hidden duration-300;
+
+      img {
+        @apply w-10 h-10 rounded-full object-cover object-center;
+      }
+
+      .username {
+        @apply hidden text-sm text-zinc-200 duration-300 px-2 pr-4;
+        @apply sm:block;
+      }
+    }
+
+    .active {
+      @apply bg-zinc-700 text-white;
+    }
+
+    .login-desktop, .register-desktop {
+      @apply hidden md:flex;
+    }
+    .login-mobile, .register-mobile {
+      @apply md:hidden;
+    }
+  }
+}
+
+.mobile-menu {
+  height: calc(100vh - theme('spacing.20'));
+  @apply fixed w-full bottom-0 left-0 z-[100] bg-zinc-900 bg-opacity-25 space-y-2 flex justify-start;
+  @apply lg:hidden;
+
+  &__wrapper {
+    @apply w-full h-full bg-zinc-900 p-4 space-y-2;
+    @apply sm:max-w-sm;
   }
 
-  .search_filters {
-    @apply w-full h-12 bg-zinc-700 flex items-center relative;
-    @apply lg:hidden;
-
-    .search_input {
-      width: calc(100% - theme('spacing.14'));
-      @apply h-12 bg-zinc-700 pl-14 text-sm font-semibold;
-      @apply focus:outline-none focus:ring-0;
-    }
+  &__link {
+    @apply w-full h-auto flex items-center space-x-3 px-4 py-4 font-semibold text-zinc-400 text-lg duration-200 rounded-lg;
 
     .icon {
-      @apply absolute top-3 left-6 text-zinc-400 z-10;
-    }
-
-    .icon_button {
-      @apply w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center mr-6 ml-2 my-2 text-gray-400 duration-150;
+      @apply w-7 h-7;
     }
   }
-
-  .mobile_menu_container {
-    height: calc(100vh - theme('spacing.20'));
-    @apply fixed bottom-0 left-0 w-full z-[100] bg-zinc-800;
-    @apply lg:hidden;
+  &__active {
+    @apply bg-zinc-800 text-darkCyan;
   }
 }
 
 .menu-enter-active,
 .menu-leave-active {
   transition: all 0.3s ease;
+
+  .mobile-menu__wrapper {
+    transition: all 0.3s ease;
+  }
 }
 
 .menu-enter-from,
 .menu-leave-to {
-  opacity: 0;
-  transform: translateX(-100%);
+  opacity: 0 !important;
+
+  .mobile-menu__wrapper {
+    transform: translateX(-100%) !important;
+  }
 }
 </style>

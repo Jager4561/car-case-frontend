@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <Transition name="fade-bottom">
+  <Transition name="slide-right">
     <div v-if="props.modelValue" class="notifications-list">
       <div class="notifications-list__window-title">
         <div class="title">Powiadomienia</div>
@@ -49,8 +49,9 @@
 
 <style scoped lang="scss">
 .notifications-list {
-  @apply w-full h-full flex flex-col bg-zinc-900 shadow shadow-zinc-700;
-  @apply lg:max-h-[360px] lg:rounded-lg;
+  height: calc(100vh - theme('spacing.20'));
+  @apply fixed bottom-0 right-0 w-full flex flex-col bg-zinc-900;
+  @apply sm:max-w-xs;
 
   &__window-title {
     @apply flex-shrink-0 w-full h-auto flex items-center justify-between space-x-4 border-b border-t border-zinc-700 px-6 py-3;

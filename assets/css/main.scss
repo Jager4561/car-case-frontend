@@ -7,21 +7,33 @@ body {
 	@apply w-full h-screen bg-zinc-800 text-white;
 }
 
+* {
+  @apply select-none outline-none;
+}
+
 body {
 	@apply overflow-y-auto;
 }
 
+h5 {
+  @apply text-sm uppercase text-zinc-400;
+}
+
+h6 {
+  @apply uppercase font-light text-xs text-gray-400;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 2px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-700;
+  @apply bg-zinc-900;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-500 rounded-full;
+  @apply bg-zinc-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {

@@ -50,6 +50,14 @@ const onFormSubmit = () => {
 <template>
   <div class="login_container">
     <NuxtLink to="/" class="logo">
+      <div class="go_back">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+        </svg>
+        <span>Główna</span>
+      </div>
+    </NuxtLink>
+    <NuxtLink to="/" class="logo">
       <h3><span class="highlight">CAR</span>CASE</h3>
     </NuxtLink>
     <Transition name="fade" mode="out-in">
@@ -61,7 +69,6 @@ const onFormSubmit = () => {
             <div class="input_container">
               <label for="name">Nazwa konta</label>
               <input v-model="form.name.$model" type="name" id="email" name="name" placeholder="Jan Kowalski" />
-
               <div class="error" :class="{ visible: form.email.$error && form.$dirty }">
                 <div class="error__container">
                   <div class="error__content">
@@ -87,7 +94,7 @@ const onFormSubmit = () => {
               <div class="error" :class="{ visible: form.password.$error && form.$dirty }">
                 <div class="error__container">
                   <div class="error__content">
-                    <span v-for="error of form.password.$errors" :key="error.$uid">{{ error.$message }}<br></span>
+                    <span v-for="error of form.password.$errors" :key="error.$uid">{{ error.$message }}<br /></span>
                   </div>
                 </div>
               </div>
@@ -138,6 +145,19 @@ const onFormSubmit = () => {
 
   .logo {
     @apply w-full h-auto mb-4;
+
+    .go_back {
+      @apply w-auto h-auto flex items-center space-x-1 duration-150;
+      @apply hover:text-darkCyan;
+
+      svg {
+        @apply w-4 h-4 mb-0.5;
+      }
+
+      span {
+        @apply text-sm font-medium leading-3;
+      }
+    }
 
     h3 {
       @apply text-xl font-black leading-5;

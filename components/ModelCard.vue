@@ -1,10 +1,13 @@
 <script setup lang="ts">
     interface Model {
         brand: {
-            logo: string;
-            name: string;
+          logo: string;
+          name: string;
+          slug: string;
         };
         model: string;
+        modelSlug: string;
+        generation: string;
         image: string;
         productionStart: string;
         productionEnd: string;
@@ -18,7 +21,7 @@
 </script>
 
 <template>
-    <NuxtLink class="model_container">
+    <NuxtLink :to="{path: '/', query: { brand: model.brand.slug, model: model.modelSlug, generation: model.generation }}" class="model_container">
         <div class="model_image">
             <NuxtImg :src="model.image" alt="Model"></NuxtImg>
         </div>
@@ -50,7 +53,11 @@
 
         .model_image {
             @apply w-full h-auto overflow-hidden;
-            aspect-ratio: 3/2;
+            aspect-ratio: 16/9;
+
+            @screen sm {
+              aspect-ratio: 3/2;
+            }
 
             img {
                 @apply w-full h-full object-center object-cover duration-150;
@@ -104,7 +111,7 @@
                 }
 
                 .hydrogen {
-                    @apply text-white bg-yellow-400;
+                    @apply text-black bg-yellow-400;
                 }
 
                 .ev {
