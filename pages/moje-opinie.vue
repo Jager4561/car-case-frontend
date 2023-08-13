@@ -1,4 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePageMeta({
+  middleware: [
+    'auth',
+  ],
+});
+
+useSeoMeta({
+  title: 'Moje opinie',
+});
+</script>
 
 <template></template>
 

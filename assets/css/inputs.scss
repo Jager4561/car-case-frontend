@@ -144,6 +144,11 @@
     @apply lg:hover:bg-zinc-700 lg:hover:text-white;
   }
 
+  &__danger {
+    @apply bg-red-600 text-white;
+    @apply lg:hover:bg-red-500;
+  }
+
   &__small {
     @apply h-8 text-xs px-3;
 

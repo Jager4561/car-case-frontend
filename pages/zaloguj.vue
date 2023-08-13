@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { useVuelidate } from '@vuelidate/core';
-import { required, email } from '@vuelidate/validators';
+import { required, email, minLength } from '@vuelidate/validators';
 import { helpers } from '@vuelidate/validators';
 
 definePageMeta({
   layout: 'auth',
+  middleware: [
+    'auth-active',
+  ],
 });
 
+useSeoMeta({
+  title: 'Zaloguj się',
+});
+
+const { saveSession } = useAuthState();
+const { createErrorToast, createWarningToast } = useToasts();
 const isFormPending = ref(false);
 
 const inputs = reactive({
@@ -21,15 +30,49 @@ const rules = {
   },
   password: {
     required: helpers.withMessage('Musisz uzupelnić to pole.', required),
+    minLength: helpers.withMessage('Hasło musi mieć co najmniej 8 znaków.', minLength(8)),
   },
 };
 
 const form = useVuelidate(rules, inputs);
 
-const onFormSubmit = () => {
+const onFormSubmit = async () => {
   form.value.$validate();
-  if (form.value.$invalid) return;
-  alert('Formularz jest poprawny!');
+  if (form.value.$invalid) {
+    createWarningToast('Uwaga!', 'Popraw zaznaczone pola w formularzu.');
+    return;
+  }
+  isFormPending.value = true;
+  try {
+    const result = await loginUser({
+      email: inputs.email,
+      password: inputs.password,
+    });
+    saveSession(result);
+    navigateTo('/');
+  } catch (error: any) {
+    isFormPending.value = false;
+    let message = 'Wystąpił nieznany błąd. Spróbuj ponownie później.';
+    switch(error.type) {
+      case 'payload': {
+        message = 'Wystąpił błąd poczas przetwarzania danych formularza. Odśwież stronę i spróbuj ponownie.';
+        break;
+      }
+      case 'not_found': {
+        message = 'Nie znaleziono użytkownika o podanym adresie e-mail.';
+        break;
+      }
+      case 'inactive': {
+        message = 'Konto nie zostało jeszcze aktywowane. Sprawdź swoją skrzynkę pocztową.';
+        break;
+      }
+      case 'invalid_password': {
+        message = 'Podane hasło jest nieprawidłowe.';
+        break;
+      }
+    }
+    createErrorToast('Błąd rejestracji!', message);
+  }
 };
 </script>
 
@@ -81,7 +124,7 @@ const onFormSubmit = () => {
       </button>
     </form>
     <div class="spacer"></div>
-    <NuxtLink to="/odzyskiwanie-hasla" class="secondary_button">
+    <NuxtLink to="/reset-hasla" class="secondary_button">
       <span>Zapomniałeś hasła?</span>
     </NuxtLink>
     <NuxtLink to="/zarejestruj" class="secondary_button">

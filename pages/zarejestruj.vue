@@ -5,10 +5,21 @@ import { helpers } from '@vuelidate/validators';
 
 definePageMeta({
   layout: 'auth',
+  middleware: [
+    'auth-active',
+  ],
 });
+
+useSeoMeta({
+  title: 'Zarejestruj się',
+})
 
 const isFormPending = ref(false);
 const stage = ref('enter_data');
+const { createWarningToast, createErrorToast } = useToasts();
+const savedEmail = ref('');
+const resendPending = ref(false);
+const resendSuccess = ref(false);
 
 const inputs = reactive({
   name: '',
@@ -34,17 +45,61 @@ const rules = {
   },
   password_confirmation: {
     required: helpers.withMessage('Musisz uzupelnić to pole.', required),
-    sameAs: helpers.withMessage('Hasła nie są identyczne.', sameAs(inputs.password)),
+    sameAs: helpers.withMessage('Hasła nie są identyczne.', sameAs(computed(() => inputs.password))),
   },
 };
 
 const form = useVuelidate(rules, inputs);
 
-const onFormSubmit = () => {
+const onFormSubmit = async () => {
   form.value.$validate();
-  if (form.value.$invalid) return;
-  stage.value = 'done';
+  if (form.value.$invalid) {
+    createWarningToast('Uwaga!', 'Popraw zaznaczone pola w formularzu.');
+    return;
+  }
+  try {
+    isFormPending.value = true;
+    const result = await registerUser({
+      name: inputs.name,
+      email: inputs.email,
+      password: inputs.password,
+    });
+    stage.value = 'done';
+    savedEmail.value = inputs.email;
+    isFormPending.value = false;
+  } catch (error: any) {
+    isFormPending.value = false;
+    let message = 'Wystąpił nieznany błąd. Spróbuj ponownie później.';
+    switch(error.type) {
+      case 'payload': {
+        message = 'Wystąpił błąd poczas przetwarzania danych formularza. Odśwież stronę i spróbuj ponownie.';
+        break;
+      }
+      case 'email_taken': {
+        message = 'Podany adres e-mail jest już zajęty.';
+        break;
+      }
+    }
+    createErrorToast('Błąd rejestracji!', message);
+  }
 };
+
+const resendEmail = async () => {
+  if(resendPending.value) return;
+  if(savedEmail.value == null || savedEmail.value.length === 0) {
+    createErrorToast('Błąd!', 'Ponowne wysłanie wiadomości e-mail jest w tej chwili niemożliwe. Skontaktuj się z obsługą.');
+    return;
+  }
+  resendPending.value = true;
+  try {
+    const result = await resendActivationEmail(savedEmail.value);
+    resendPending.value = false;
+    resendSuccess.value = true;
+  } catch (error) {
+    resendPending.value = false;
+    createErrorToast('Błąd!', 'Ponowne wysłanie wiadomości e-mail nie powiodło się, spróbuj ponownie później.');
+  }
+}
 </script>
 
 <template>
@@ -68,8 +123,8 @@ const onFormSubmit = () => {
           <div class="inputs">
             <div class="input_container">
               <label for="name">Nazwa konta</label>
-              <input v-model="form.name.$model" type="name" id="email" name="name" placeholder="Jan Kowalski" />
-              <div class="error" :class="{ visible: form.email.$error && form.$dirty }">
+              <input v-model="form.name.$model" type="name" id="name" name="name" placeholder="Jan Kowalski" />
+              <div class="error" :class="{ visible: form.name.$error && form.$dirty }">
                 <div class="error__container">
                   <div class="error__content">
                     <span v-for="error of form.name.$errors" :key="error.$uid">{{ error.$message }}</span>
@@ -83,7 +138,7 @@ const onFormSubmit = () => {
               <div class="error" :class="{ visible: form.email.$error && form.$dirty }">
                 <div class="error__container">
                   <div class="error__content">
-                    <span v-for="error of form.name.$errors" :key="error.$uid">{{ error.$message }}</span>
+                    <span v-for="error of form.email.$errors" :key="error.$uid">{{ error.$message }}</span>
                   </div>
                 </div>
               </div>
@@ -129,6 +184,20 @@ const onFormSubmit = () => {
       <div v-else-if="stage === 'done'">
         <h1 class="page_title">Konto zostało utworzone.</h1>
         <p class="description">Na skrzynkę twojej poczty e-mail wysłaliśmy wiadomość z linkiem aktywacyjnym. Po aktywacji konta będziesz mógł się zalogować.</p>
+        <NuxtLink to="/zaloguj" class="login-button text-button text-button__medium text-button__primary">Zaloguj się</NuxtLink>
+        <Transition name="fade" mode="out-in">
+          <p v-if="!resendSuccess" class="resend">
+            Jeżeli nie otrzymałeś wiadomości z linkiem aktywacyjnym możesz spróbować <a class="highlight" @click="resendEmail()">wysłać ją ponownie.</a> 
+            <div v-if="resendPending" class="loading">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </p>
+          <p v-else class="resend-success">
+            Wiadomość została wysłana ponownie.
+          </p>
+        </Transition>
       </div>
     </Transition>
   </div>
@@ -177,6 +246,40 @@ const onFormSubmit = () => {
 
   .description {
     @apply text-sm font-light mb-4;
+  }
+
+  .login-button {
+    @apply w-full mb-4;
+  }
+
+  .resend {
+    @apply text-sm font-light;
+
+    .highlight {
+      @apply text-darkCyan font-bold cursor-pointer;
+    }
+
+    .loading {
+      @apply w-auto h-auto inline-flex items-center justify-center space-x-1.5 ml-2;
+
+      div {
+        @apply w-2 h-2 rounded-full bg-white;
+        animation: fade 0.8s ease-in-out alternate infinite;
+      }
+
+      div:nth-of-type(1) {
+        animation-delay: -0.4s;
+      }
+
+      div:nth-of-type(2) {
+        animation-delay: -0.2s;
+      }
+    }
+  }
+
+  .resend-success {
+    @apply text-sm font-light text-white;
+    text-shadow: white 1px 0 10px;
   }
 
   form {

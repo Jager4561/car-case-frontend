@@ -63,12 +63,12 @@ onMounted(() => {
           <XMarkIcon v-else class="icon" />
         </Transition>
       </button>
-      <div class="logo">Car<span class="highlight">Case</span></div>
+      <NuxtLink to="/" class="logo">Car<span class="highlight">Case</span></NuxtLink>
       <nav class="nav">
         <NuxtLink to="/" class="nav__link" active-class="nav__active"> Główna </NuxtLink>
         <NuxtLink to="/modele" class="nav__link" active-class="nav__active"> Modele </NuxtLink>
-        <NuxtLink to="/moje-dokumentacje" class="nav__link" active-class="nav__active"> Moje dokumetacje </NuxtLink>
-        <NuxtLink to="/moje-opinie" class="nav__link" active-class="nav__active"> Moje opinie </NuxtLink>
+        <NuxtLink v-if="isLoggedIn" to="/moje-dokumentacje" class="nav__link" active-class="nav__active"> Moje dokumetacje </NuxtLink>
+        <NuxtLink v-if="isLoggedIn" to="/moje-opinie" class="nav__link" active-class="nav__active"> Moje opinie </NuxtLink>
         <NuxtLink to="/o-aplikacji" class="nav__link" active-class="nav__active"> O aplikacji </NuxtLink>
       </nav>
     </div>
