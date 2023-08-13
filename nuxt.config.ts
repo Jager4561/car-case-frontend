@@ -32,7 +32,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      siteUrl: 'https://carcase.pl',
+      siteUrl: 'https://carcase.codeu.io',
       siteName: 'CarCase',
       siteDescription: 'CarCase to serwis służacy do przechowywania oraz publikowania dokumentacji technicznej samochodów, tworzą ją wszyscy użytownicy serwisu. Dołącz do nich już dziś!',
       language: 'pl-PL',

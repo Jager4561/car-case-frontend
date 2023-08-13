@@ -8,7 +8,7 @@
                 <div class="cars_list">
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <img class="car_image" src="@/assets/img/golf.jpg" alt="">
+                            <NuxtImg class="car_image" src="golf.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Golf IV</p>
                                 <p class="brand">Volkswagen</p>
@@ -24,7 +24,7 @@
                     </NuxtLink>
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <img class="car_image" src="@/assets/img/fabia.jpg" alt="">
+                            <NuxtImg class="car_image" src="fabia.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Fabia I</p>
                                 <p class="brand">Skoda</p>
@@ -40,7 +40,7 @@
                     </NuxtLink>
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <img class="car_image" src="@/assets/img/seat.jpg" alt="">
+                            <NuxtImg class="car_image" src="seat.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Ibiza IV</p>
                                 <p class="brand">Seat</p>
@@ -58,7 +58,7 @@
         </div>
         <div class="bottom_part">
           <div class="advert">
-              <img src="@/assets/img/up_logo.jpg" alt="">
+              <NuxtImg src="up_logo.jpg" alt=""></NuxtImg>
               <p>Projekt stworzony na potrzeby pracy inżynierskiej na Instytucie Nauk Technicznych Uniwersytetu Pedagogicznego im. Komisji Edukacji Narodowej w Krakowie.</p>
           </div>
           <div class="copyright">
