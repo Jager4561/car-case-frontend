@@ -11,6 +11,7 @@ useSeoMeta({
   title: 'Aktywuj konto',
 });
 
+const { activateAccount } = useAuthService();
 const route = useRoute();
 const { createErrorToast } = useToasts();
 

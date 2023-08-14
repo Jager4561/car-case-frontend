@@ -14,6 +14,7 @@ useSeoMeta({
   title: 'Zarejestruj się',
 })
 
+const { registerUser, resendActivationEmail } = useAuthService();
 const isFormPending = ref(false);
 const stage = ref('enter_data');
 const { createWarningToast, createErrorToast } = useToasts();

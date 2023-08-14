@@ -14,7 +14,8 @@ useSeoMeta({
   title: 'Resetuj hasło',
 });
 
-const { createErrorToast, createWarningToast } = useToasts();
+const { resetPassword, resendResetPasswordEmail } = useAuthService();
+const { createErrorToast } = useToasts();
 const isFormPending = ref(false);
 const stage = ref('enter_email');
 const savedEmail = ref('');

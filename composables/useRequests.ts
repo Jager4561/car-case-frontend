@@ -1,11 +1,11 @@
-import { apiUrl } from "./config";
-
 export type ReqError = {
   type: string;
   message: string;
 }
 
 export const useRequests = () => {
+  const runtimeConfig = useRuntimeConfig();
+
   const performRequest = async <T>(method: string, route: string, data?: any): Promise<T | ReqError> => {
     const sessionState = useAuthState();
     const session = sessionState.sessionData.value;
@@ -15,7 +15,7 @@ export const useRequests = () => {
         message: 'No session found',
       };
     }
-    const response = await fetch(`${apiUrl}${route}`, {
+    const response = await fetch(`${runtimeConfig.public.apiUrl}${route}`, {
       method,
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ export const useRequests = () => {
       body: JSON.stringify(data),
     });
     if(response.status === 401) {
-      const refresh = await fetch(`${apiUrl}/auth/refresh`, {
+      const refresh = await fetch(`${runtimeConfig.public.apiUrl}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

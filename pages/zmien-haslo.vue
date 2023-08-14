@@ -14,6 +14,7 @@ useSeoMeta({
   title: 'Aktywuj konto',
 });
 
+const { changePassword } = useAuthService();
 const route = useRoute();
 const { createErrorToast, createWarningToast } = useToasts();
 const isFormPending = ref(false);

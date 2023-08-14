@@ -32,6 +32,8 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
+      apiUrl: process.env.API_URL,
+      assetsUrl: process.env.ASSETS_URL,
       siteUrl: 'https://carcase.codeu.io',
       siteName: 'CarCase',
       siteDescription: 'CarCase to serwis służacy do przechowywania oraz publikowania dokumentacji technicznej samochodów, tworzą ją wszyscy użytownicy serwisu. Dołącz do nich już dziś!',

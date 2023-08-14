@@ -10,6 +10,7 @@ useSeoMeta({
   title: 'Konto',
 });
 
+const { logoutUser } = useAuthService();
 const { deleteSession, sessionData } = useAuthState();
 
 const logout = async () => {

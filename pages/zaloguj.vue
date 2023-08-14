@@ -14,6 +14,7 @@ useSeoMeta({
   title: 'Zaloguj się',
 });
 
+const { loginUser } = useAuthService();
 const { saveSession } = useAuthState();
 const { createErrorToast, createWarningToast } = useToasts();
 const isFormPending = ref(false);
