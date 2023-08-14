@@ -24,18 +24,18 @@
     <div class="post_footer">
       <div class="post_info">
         <button class="model">
-          <NuxtImg class="model_image" src="golf.jpg"></NuxtImg>
+          <NuxtImg class="model_image" src="img/golf.jpg"></NuxtImg>
           <div class="fuel_mark">Pb95</div>
           <span class="model_name">Volkswagen Golf IV (1.6l)</span>
         </button>
         <button class="author">
-          <NuxtImg class="author_image" src="revenant.png"></NuxtImg>
+          <NuxtImg class="author_image" src="img/revenant.png"></NuxtImg>
           <span class="author_name">Jan Kowalski</span>
         </button>
       </div>
       <div class="post_actions">
         <button class="author">
-          <NuxtImg class="author_image" src="revenant.png"></NuxtImg>
+          <NuxtImg class="author_image" src="img/revenant.png"></NuxtImg>
           <span class="author_name">Jan Kowalski</span>
         </button>
         <div class="actions">

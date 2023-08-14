@@ -36,7 +36,7 @@
             <span class="name">Nowy komentarz</span>&nbsp;&nbsp;•&nbsp;&nbsp;<span class="date">10.07.2023 11:45</span>
           </div>
           <div class="notification__body">
-            <NuxtImg class="image" src="revenant.png"></NuxtImg>
+            <NuxtImg class="image" src="img/revenant.png"></NuxtImg>
             <div class="content">
               Użytkonik Jan Kowalski zamieścił komentarz pod Twoim postem: <span class="post">Instrukcja wymiany wysprzęglika</span>
             </div>

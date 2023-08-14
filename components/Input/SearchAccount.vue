@@ -26,10 +26,10 @@ const listOpen = ref(false);
 const selectedAccount = ref(null);
 
 onMounted(() => {
-  search.value.addEventListener('focus', () => {
+  search.value!.addEventListener('focus', () => {
     listOpen.value = true;
   });
-  search.value.addEventListener('blur', () => {
+  search.value!.addEventListener('blur', () => {
     listOpen.value = false;
   });
 });
@@ -43,7 +43,7 @@ const setAccount = (account: any) => {
 const clearInput = () => {
   emit('update:modelValue', null);
   selectedAccount.value = null;
-  search.value.value = '';
+  search.value!.value = '';
 };
 </script>
 

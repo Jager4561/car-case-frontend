@@ -80,7 +80,7 @@ onMounted(() => {
         </button>
         <HeaderNotifications v-model="notificationsOpen"></HeaderNotifications>
         <NuxtLink to="/konto" aria-label="Profil" class="profile" activeClass="active">
-          <NuxtImg src="revenant.png"></NuxtImg>
+          <NuxtImg src="img/revenant.png"></NuxtImg>
           <div class="username">
             <span>Jager456</span>
           </div>

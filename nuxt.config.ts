@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   extends: ['nuxt-seo-kit'],
   modules: ['@nuxt/image-edge'],
   image: {
-    dir: 'public/img',
+    dir: 'public',
   },
   css: [
     '@/assets/css/main.scss',

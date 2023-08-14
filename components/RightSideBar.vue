@@ -8,7 +8,7 @@
                 <div class="cars_list">
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <NuxtImg class="car_image" src="golf.jpg" alt=""></NuxtImg>
+                            <NuxtImg class="car_image" src="img/golf.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Golf IV</p>
                                 <p class="brand">Volkswagen</p>
@@ -24,7 +24,7 @@
                     </NuxtLink>
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <NuxtImg class="car_image" src="fabia.jpg" alt=""></NuxtImg>
+                            <NuxtImg class="car_image" src="img/fabia.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Fabia I</p>
                                 <p class="brand">Skoda</p>
@@ -40,7 +40,7 @@
                     </NuxtLink>
                     <NuxtLink to="/modele" class="popular_car">
                         <div class="start">
-                            <NuxtImg class="car_image" src="seat.jpg" alt=""></NuxtImg>
+                            <NuxtImg class="car_image" src="img/seat.jpg" alt=""></NuxtImg>
                             <div class="car_info">
                                 <p class="model">Ibiza IV</p>
                                 <p class="brand">Seat</p>
