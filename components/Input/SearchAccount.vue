@@ -1,21 +1,13 @@
 <script setup lang="ts">
 import { UserIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 
-const accounts = [
-  {
-    id: '1',
-    name: 'Jan Kowalski',
-    avatar: null,
-  },
-  {
-    id: '2',
-    name: 'BrainSlug',
-    avatar: null,
-  },
-]
-
 const props = defineProps<{
   modelValue: string | null;
+  accounts: {
+    id: string;
+    name: string;
+    avatar: string | null;
+  }[];
 }>();
 const search = ref<HTMLInputElement | null>(null);
 const list = ref<HTMLDivElement | null>(null);
@@ -23,7 +15,11 @@ const list = ref<HTMLDivElement | null>(null);
 const emit = defineEmits(['update:modelValue']);
 
 const listOpen = ref(false);
-const selectedAccount = ref(null);
+const selectedAccount = ref<{
+  id: string;
+  name: string;
+  avatar: string | null;
+} | null>(null);
 
 onMounted(() => {
   search.value!.addEventListener('focus', () => {
@@ -54,10 +50,9 @@ const clearInput = () => {
       <div v-if="props.modelValue != null" class="selected">
         <div class="info">
           <div class="avatar">
-            <UserIcon v-if="selectedAccount.avatar == null" class="no_avatar" />
-            <NuxtImg v-if="selectedAccount.avatar != null" src="" />
+            <Image :src="selectedAccount != null ? selectedAccount.avatar : null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
           </div>
-          <span>{{ selectedAccount.name }}</span>
+          <span>{{ selectedAccount?.name }}</span>
         </div>
         <button class="icon-button icon-button__secondary icon-button__small" @click="clearInput()">
           <XMarkIcon />
@@ -66,10 +61,9 @@ const clearInput = () => {
     </div>
     <Transition name="list">
       <div ref="list" v-show="listOpen" class="list">
-        <button v-for="account in accounts" class="list__option" :class="{'list__selected': account.id == props.modelValue}" @click="setAccount(account)">
+        <button v-for="account in props.accounts" class="list__option" :class="{'list__selected': account.id == props.modelValue}" @click="setAccount(account)">
           <div class="avatar">
-            <UserIcon v-if="account.avatar == null" class="no_avatar" />
-            <NuxtImg v-if="account.avatar != null" src="" />
+            <Image :src="account.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
           </div>
           <span>{{ account.name }}</span>
         </button>
@@ -118,16 +112,5 @@ const clearInput = () => {
       @apply bg-zinc-700 font-bold;
     }
   }
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.2s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  transform: scale(0.8) translateY(-10px);
-  opacity: 0;
 }
 </style>

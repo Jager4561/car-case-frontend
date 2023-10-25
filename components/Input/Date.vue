@@ -21,11 +21,14 @@ const monthsNames = ref([
   'Grudzień',
 ]);
 
+const yearSelectOpen = ref(false);
 const calendarOpen = ref(false);
 const input = ref<HTMLDivElement | null>(null);
 const calendar = ref<HTMLDivElement | null>(null);
 const currentMonth = ref(new Date().getMonth());
 const currentYear = ref(new Date().getFullYear());
+const years = ref<number[]>([]);
+const yearSelectRef = ref<HTMLDivElement | null>(null);
 const monthDays = ref<{
   date: Date;
   day: number;
@@ -48,6 +51,9 @@ onMounted(() => {
     currentYear.value = props.modelValue.getFullYear();
   }
   window.addEventListener('click', isClickedOutside);
+  for(let i = new Date().getFullYear(); i >= 1886; i--) {
+    years.value.push(i);
+  }
   generateMonthDays();
 });
 const toggleCalendar = () => {
@@ -75,7 +81,26 @@ const goToPreviousMonth = () => {
   generateMonthDays();
 };
 
-// generate month days with days from previous and next month, for this days set disabled to true, start week from monday
+const openYearSelect = () => {
+  yearSelectOpen.value = true;
+  setTimeout(() => {
+    if(yearSelectRef.value) {
+      const elIndex = years.value.findIndex(year => year === currentYear.value);
+      const wantedEl = yearSelectRef.value.children[elIndex] as HTMLButtonElement;
+      yearSelectRef.value.scrollTo({
+        top: wantedEl.offsetTop,
+        behavior: 'smooth',
+      })
+    }
+  }, 300);
+};
+
+const goToYear = (year: number) => {
+  currentYear.value = year;
+  yearSelectOpen.value = false;
+  generateMonthDays();
+}
+
 const generateMonthDays = () => {
   const days: any[] = [];
   const date = new Date(currentYear.value, currentMonth.value, 1);
@@ -152,27 +177,38 @@ const isClickedOutside = (event: MouseEvent) => {
     </div>
     <Transition name="calendar">
       <div ref="calendar" v-show="calendarOpen" class="calendar">
-        <div class="header">
-          <button class="icon-button icon-button__secondary icon-button__small" @click="goToPreviousMonth()">
-            <ChevronLeftIcon />
-          </button>
-          <span>{{ monthsNames[currentMonth] + ' ' + currentYear }}</span>
-          <button class="icon-button icon-button__secondary icon-button__small" @click="goToNextMonth()">
-            <ChevronRightIcon />
-          </button>
-        </div>
-        <div class="week_days">
-          <div class="day_name">Pon</div>
-          <div class="day_name">Wt</div>
-          <div class="day_name">Śr</div>
-          <div class="day_name">Czw</div>
-          <div class="day_name">Pt</div>
-          <div class="day_name">Sob</div>
-          <div class="day_name">Ndz</div>
-          <button v-for="day in monthDays" class="day" :class="{today: day.today, selected: day.selected, disabled: day.disabled}" @click="setDate(day.date)">
-            {{ day.day }}
-          </button>
-        </div>
+        <Transition name="fade" mode="out-in">
+          <div v-if="!yearSelectOpen" class="date-select">
+            <div class="header">
+              <button class="icon-button icon-button__secondary icon-button__small" @click="goToPreviousMonth()">
+                <ChevronLeftIcon />
+              </button>
+              <button class="text-button text-button__thertiary text-button__small" @click="openYearSelect()">
+                <span>{{ monthsNames[currentMonth] + ' ' + currentYear }}</span>
+              </button>
+              <button class="icon-button icon-button__secondary icon-button__small" @click="goToNextMonth()">
+                <ChevronRightIcon />
+              </button>
+            </div>
+            <div class="week_days">
+              <div class="day_name">Pon</div>
+              <div class="day_name">Wt</div>
+              <div class="day_name">Śr</div>
+              <div class="day_name">Czw</div>
+              <div class="day_name">Pt</div>
+              <div class="day_name">Sob</div>
+              <div class="day_name">Ndz</div>
+              <button v-for="day in monthDays" class="day" :class="{today: day.today, selected: day.selected, disabled: day.disabled}" @click="setDate(day.date)">
+                {{ day.day }}
+              </button>
+            </div>
+          </div>
+          <div ref="yearSelectRef" v-else class="year-select">
+            <button v-for="year in years" class="year-button" :class="{active: year === currentYear}" @click="goToYear(year)">
+              {{ year }}
+            </button>
+          </div>
+        </Transition>
         <div class="actions">
           <button class="button button__secondary button__small" @click="clearInput()">
             <span>Wyczyść pole</span>
@@ -193,6 +229,10 @@ const isClickedOutside = (event: MouseEvent) => {
   .calendar {
     @apply w-full h-auto absolute top-full left-0 rounded-lg bg-zinc-800 border border-zinc-700 mt-1 overflow-y-auto z-10;
     transform-origin: top;
+
+    .date-select {
+      @apply w-full h-auto;
+    }
 
     .header {
       @apply w-full h-auto flex items-center justify-between p-1;
@@ -228,7 +268,18 @@ const isClickedOutside = (event: MouseEvent) => {
       .day:hover {
         @apply bg-zinc-700;
       }
+    }
+
+    .year-select {
+      @apply w-full max-h-52 overflow-y-auto;
+
+      .year-button {
+        @apply w-full h-auto text-center text-sm p-2 duration-200 hover:bg-zinc-700;
+      }
       
+      .year-button.active {
+        @apply bg-zinc-700;
+      }
     }
 
     .actions {

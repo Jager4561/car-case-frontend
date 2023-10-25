@@ -14,6 +14,10 @@ export const useAuthState = () => {
     }
   }
 
+  const getAccessToken = () => {
+    return sessionData.value?.access_token || null;
+  }
+
   const saveSession = (data: {
     access_token: string;
     expires: number;
@@ -34,6 +38,7 @@ export const useAuthState = () => {
     isLoggedIn,
     sessionData,
     initSessionState,
+    getAccessToken,
     saveSession,
     deleteSession
   };

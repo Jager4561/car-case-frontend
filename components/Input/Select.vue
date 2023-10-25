@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { ChevronDownIcon } from '@heroicons/vue/24/solid';
 
-const props = defineProps<{
-  modelValue: string | null;
-  placeholder: string;
-  options: {
-    value: string;
-    label: string;
-  }[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelValue: string | number | null;
+    clearVisible?: boolean;
+    placeholder?: string;
+    options?: {
+      value: string | number;
+      label: string;
+    }[];
+  }>(),
+  {
+    clearVisible: true,
+    placeholder: 'Wybierz',
+    options: [] as any,
+  }
+);
 const emit = defineEmits(['update:modelValue']);
 
 const listOpen = ref(false);
@@ -20,17 +28,16 @@ onMounted(() => {
 });
 
 const selectedValue = computed(() => {
-  if(props.options == undefined) return null;
+  if (props.options == undefined) return null;
   const wanted = props.options.find((option) => option.value === props.modelValue);
-  if(wanted) {
+  if (wanted) {
     return wanted.label;
   } else {
     return props.modelValue;
   }
-})
+});
 
-
-const selectValue = (value: string) => {
+const selectValue = (value: string | number | null) => {
   emit('update:modelValue', value);
   listOpen.value = false;
 };
@@ -41,12 +48,7 @@ const toggleList = () => {
 
 const isClickedOutside = (event: MouseEvent) => {
   if (listOpen.value && select.value && list.value) {
-    if (
-      !select.value.contains(event.target as Node) &&
-      !list.value.contains(event.target as Node) &&
-      event.target !== select.value &&
-      event.target !== list.value
-    ) {
+    if (!select.value.contains(event.target as Node) && !list.value.contains(event.target as Node) && event.target !== select.value && event.target !== list.value) {
       listOpen.value = false;
     }
   }
@@ -64,7 +66,8 @@ const isClickedOutside = (event: MouseEvent) => {
     </div>
     <Transition name="list">
       <div ref="list" v-show="listOpen" class="list">
-        <button v-for="option in props.options" class="list__option" :class="{list__selected: option.value == props.modelValue}" @click="selectValue(option.value)">{{ option.label }}</button>
+        <button v-if="props.modelValue != null && props.clearVisible" class="list__option none" @click="selectValue(null)">{{ props.placeholder }}</button>
+        <button v-for="option in props.options" class="list__option" :class="{ list__selected: option.value == props.modelValue }" @click="selectValue(option.value)">{{ option.label }}</button>
       </div>
     </Transition>
   </div>
@@ -92,22 +95,15 @@ const isClickedOutside = (event: MouseEvent) => {
 
     &__option {
       @apply w-full h-auto px-2 py-1.5 text-sm text-left duration-200 hover:bg-zinc-700;
+
+      &.none {
+        @apply font-light text-zinc-500;
+      }
     }
 
     &__selected {
       @apply bg-zinc-700 font-bold;
     }
   }
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.2s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  transform: scale(0.8) translateY(-10px);
-  opacity: 0;
 }
 </style>

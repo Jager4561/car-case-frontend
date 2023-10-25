@@ -23,6 +23,9 @@ export default defineNuxtConfig({
   modules: ['@nuxt/image-edge'],
   image: {
     dir: 'public',
+    directus: {
+      baseURL: process.env.ASSETS_URL + '/assets/'
+    }
   },
   css: [
     '@/assets/css/main.scss',

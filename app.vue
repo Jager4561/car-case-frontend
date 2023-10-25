@@ -1,24 +1,37 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
+import 'dayjs/locale/pl';
+import updateLocale from 'dayjs/plugin/updateLocale';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-  const { createErrorToast } = useToasts();
-  const { isLoggedIn, initSessionState, deleteSession } = useAuthState();
-  const { performRequest } = useRequests();
-  const appState = ref('loading');
+dayjs.extend(updateLocale);
+dayjs.extend(relativeTime);
 
-  onBeforeMount(async () => {
-    initSessionState();
-    if(isLoggedIn) {
-      try {
-        await performRequest('GET', '/auth/ping');
-        appState.value = 'loaded';
-      } catch (error) {
-        deleteSession();
-        appState.value = 'loaded';
-      }
-    } else {
+dayjs.locale('pl');
+
+const { createErrorToast } = useToasts();
+const { isLoggedIn, initSessionState, deleteSession } = useAuthState();
+const { performRequest } = useRequests();
+const appState = ref('loading');
+
+useSeoMeta({
+  title: 'Ładowanie...',
+});
+
+onBeforeMount(async () => {
+  initSessionState();
+  if (isLoggedIn) {
+    try {
+      await performRequest('GET', '/auth/ping');
+      appState.value = 'loaded';
+    } catch (error) {
+      deleteSession();
       appState.value = 'loaded';
     }
-  });
+  } else {
+    appState.value = 'loaded';
+  }
+});
 </script>
 
 <template>
