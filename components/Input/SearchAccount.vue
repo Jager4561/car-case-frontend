@@ -41,6 +41,20 @@ const clearInput = () => {
   selectedAccount.value = null;
   search.value!.value = '';
 };
+
+watch(() => props.modelValue, (value) => {
+  if(value == null) {
+    selectedAccount.value = null;
+  } else {
+    const wantedAccount = props.accounts.find((account) => account.id == value);
+    if(wantedAccount) {
+      selectedAccount.value = wantedAccount;
+    } else {
+      emit('update:modelValue', null);
+      selectedAccount.value = null;
+    }
+  }
+}, {immediate: true, deep: true});
 </script>
 
 <template>

@@ -39,7 +39,7 @@
       }
       const image = new Image();
       let src = null;
-      if(width !== null && height !== null) {
+      if(width !== null && height !== null && width !== 0 && height !== 0) {
         src = `${props.src}?width=${width}&height=${height}&fit=${props.fit}`;
       } else {
         src = `${props.src}?fit=${props.fit}`;

@@ -16,7 +16,7 @@ const emit = defineEmits(['onFiltersUpdate']);
 const filtersStatus = ref<'loading' | 'error' | 'success'>('loading');
 const { filtersData, fetchPending, fetchFiltersData } = useFilters();
 
-const filters = reactive({
+const filters = reactive<PostsFilterRules>({
   search: null,
   sort: 'latest',
   dateFrom: null,
@@ -24,7 +24,7 @@ const filters = reactive({
   brand: null,
   model: null,
   generation: null,
-  account: null,
+  author: null,
 });
 
 const sorting = ref([
@@ -122,7 +122,8 @@ const clearFilters = () => {
   filters.brand = null;
   filters.model = null;
   filters.generation = null;
-  filters.account = null;
+  filters.author = null;
+  onFiltersChange();
 };
 
 const setUpFilters = () => {
@@ -146,17 +147,71 @@ const setUpFilters = () => {
   if(props.filters.dateTo) {
     filters.dateTo = props.filters.dateTo;
   }
+  if(props.filters.author) {
+    filters.author = props.filters.author;
+  }
+  if(props.filters.generation) {
+    let wantedBrand = null;
+    let wantedModel = null;
+    let wantedGeneration = null;
+    for(let i = 0; i < filtersData.value.brands.length; i++) {
+      const brand = filtersData.value.brands[i];
+      for(let j = 0; j < brand.models.length; j++) {
+        const model = brand.models[j];
+        for(let k = 0; k < model.generations.length; k++) {
+          const generation = model.generations[k];
+          if(generation.id === props.filters.generation) {
+            wantedBrand = brand;
+            wantedModel = model;
+            wantedGeneration = generation;
+            break;
+          }
+        }
+        if(wantedGeneration != null) {
+          break;
+        }
+      }
+      if(wantedGeneration != null) {
+        break;
+      }
+    }
+    if(wantedBrand == null || wantedModel == null || wantedGeneration == null) {
+      return;
+    }
+    filters.brand = wantedBrand.id;
+    filters.model = wantedModel.id;
+    filters.generation = wantedGeneration.id;
+    return;
+  }
+  if(props.filters.model) {
+    let wantedBrand = null;
+    let wantedModel = null;
+    for(let i = 0; i < filtersData.value.brands.length; i++) {
+      const brand = filtersData.value.brands[i];
+      for(let j = 0; j < brand.models.length; j++) {
+        const model = brand.models[j];
+        if(model.id === props.filters.model) {
+          wantedBrand = brand;
+          wantedModel = model;
+          break;
+        }
+      }
+      if(wantedModel != null) {
+        break;
+      }
+    }
+    if(wantedBrand == null || wantedModel == null) {
+      return;
+    }
+    filters.brand = wantedBrand.id;
+    filters.model = wantedModel.id;
+    return;
+  }
   if(props.filters.brand) {
     filters.brand = props.filters.brand;
   }
-  if(props.filters.model) {
-    filters.model = props.filters.model;
-  }
   if(props.filters.generation) {
     filters.generation = props.filters.generation;
-  }
-  if(props.filters.account) {
-    filters.account = props.filters.account;
   }
 };
 
@@ -195,6 +250,10 @@ watch(filtersData, () => {
 watch(filters, () => {
   onFiltersChange();
 });
+
+watch(props.filters, () => {
+  setUpFilters();
+});
 </script>
 
 <template>
@@ -228,7 +287,7 @@ watch(filters, () => {
           <div class="field">
             <label for="" class="field__label">Wyszukiwanie</label>
             <div class="field__input field__with-icon">
-              <input type="text" placeholder="Szukaj..." />
+              <input v-model="filters.search" type="text" placeholder="Szukaj..." />
               <MagnifyingGlassIcon />
             </div>
           </div>
@@ -236,7 +295,7 @@ watch(filters, () => {
         <div class="filters__single">
           <div class="field">
             <label for="" class="field__label">Sortowanie</label>
-            <InputSelect v-model="filters.sort" placeholder="Typ" :options="sorting" />
+            <InputSelect v-model="filters.sort" placeholder="Typ" :clearVisible="false" :options="sorting" />
           </div>
         </div>
         <div class="filters__single">
@@ -266,7 +325,7 @@ watch(filters, () => {
         <div v-if="accounts && accounts.length > 0" class="filters__single">
           <div class="field">
             <label for="" class="field__label">Autor</label>
-            <InputSearchAccount v-model="filters.account" :accounts="accounts" />
+            <InputSearchAccount v-model="filters.author" :accounts="accounts" />
           </div>
         </div>
       </div>

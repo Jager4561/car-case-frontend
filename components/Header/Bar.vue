@@ -113,11 +113,11 @@ onMounted(() => {
           <SwatchIcon class="icon" />
           <span> Modele </span>
         </NuxtLink>
-        <NuxtLink to="/moje-dokumentacje" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+        <NuxtLink v-if="isLoggedIn" to="/moje-dokumentacje" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
           <ArchiveBoxIcon class="icon" />
           <span> Moje dokumentacje </span>
         </NuxtLink>
-        <NuxtLink to="/moje-opinie" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
+        <NuxtLink v-if="isLoggedIn" to="/moje-opinie" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
           <ChatBubbleLeftEllipsisIcon class="icon" />
           <span> Moje opinie </span>
         </NuxtLink>

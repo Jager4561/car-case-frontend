@@ -158,6 +158,7 @@ const clearInput = () => {
 const isClickedOutside = (event: MouseEvent) => {
   if (calendarOpen.value && input.value && calendar.value) {
     if (!input.value.contains(event.target as Node) && !calendar.value.contains(event.target as Node) && event.target !== input.value && event.target !== calendar.value) {
+      yearSelectOpen.value = false;
       calendarOpen.value = false;
     }
   }

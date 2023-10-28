@@ -4,7 +4,11 @@
 
 html,
 body {
-	@apply w-full h-screen bg-zinc-800 text-white;
+	@apply w-full h-full bg-zinc-800 text-white;
+}
+
+#__nuxt {
+  @apply w-full h-full;
 }
 
 * {

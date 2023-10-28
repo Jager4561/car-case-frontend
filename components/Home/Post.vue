@@ -37,7 +37,7 @@ onMounted(() => {
 <template>
   <div class="post">
     <div class="post__container">
-      <NuxtLink to="/" class="post_header">
+      <NuxtLink :to="'/instrukcje/' + post.id" class="post_header">
         <div class="title">{{ post.title }}</div>
         <div class="publish_info">
           <div class="created">
@@ -50,7 +50,7 @@ onMounted(() => {
           </div>
         </div>
       </NuxtLink>
-      <NuxtLink to="/" class="short_description">
+      <NuxtLink :to="'/instrukcje/' + post.id" class="short_description">
         <p>{{ post.abstract }}</p>
       </NuxtLink>
       <div class="spacer"></div>
@@ -75,7 +75,6 @@ onMounted(() => {
             <div class="author_image">
               <Image :src="post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
-            <NuxtImg v-if="post.author.avatar != null" class="author_image" provider="directus" :src="post.author.avatar"></NuxtImg>
             <span class="author_name">{{ post.author.name }}</span>
           </NuxtLink>
           <div class="actions">
@@ -121,7 +120,7 @@ onMounted(() => {
     @apply hover:ring-1 hover:ring-darkCyan;
 
     .post_header {
-      @apply w-full h-auto flex flex-col items-start justify-between space-y-2 mb-4 cursor-pointer;
+      @apply w-full h-auto flex flex-col items-start justify-between space-y-2 pb-4 cursor-pointer;
       @apply sm:flex-row sm:space-x-4 sm:space-y-0;
 
       .title {

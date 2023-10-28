@@ -20,6 +20,7 @@ useSeoMeta({
 });
 
 const route = useRoute();
+const router = useRouter();
 const { posts, postsMeta, fetchPosts } = usePostsState();
 const filters = ref<PostsFilterRules>({
   search: null,
@@ -95,25 +96,105 @@ const clickedOutsideInfo = (event: MouseEvent) => {
 const onFiltersChange = (updatedFilters: ModelsFilterRules) => {
   filters.value = updatedFilters;
   currentPage.value = 0;
+  updateSearchParams();
   loadPosts();
 };
 
+let paramsChangeByPage = ref(false);
 const updateSearchParams = () => {
   const params = new URLSearchParams();
 
+  if(filters.value.search) {
+    params.set('search', filters.value.search);
+  }
+  if(filters.value.sort && filters.value.sort !== 'latest') {
+    params.set('sort', filters.value.sort);
+  }
+  if(filters.value.dateFrom) {
+    const day = filters.value.dateFrom.getDate().toString().padStart(2, '0');
+    const month = (filters.value.dateFrom.getMonth() + 1).toString().padStart(2, '0');
+    const year = filters.value.dateFrom.getFullYear().toString();
+    params.set('dateFrom', `${year}-${month}-${day}`);
+  }
+  if(filters.value.dateTo) {
+    const day = filters.value.dateTo.getDate().toString().padStart(2, '0');
+    const month = (filters.value.dateTo.getMonth() + 1).toString().padStart(2, '0');
+    const year = filters.value.dateTo.getFullYear().toString();
+    params.set('dateTo', `${year}-${month}-${day}`);
+  }
+  if(filters.value.brand) {
+    params.set('brand', filters.value.brand.toString());
+  }
+  if(filters.value.model) {
+    params.set('model', filters.value.model.toString());
+  }
+  if(filters.value.generation) {
+    params.set('generation', filters.value.generation.toString());
+  }
+  if(filters.value.author) {
+    params.set('author', filters.value.author);
+  }
   if(currentPage.value > 0) {
     params.set('page', currentPage.value.toString());
   } 
+  paramsChangeByPage.value = true;
   if(params.size > 0) {
-    history.replaceState({}, '', window.location + '?' + params.toString());
+    router.replace('?' + params.toString());
   } else {
-    history.replaceState({}, '', window.location.pathname);
+    router.replace('/');
   }
+}
+
+const loadFiltersFromUrl = () => {
+  if(paramsChangeByPage.value) {
+    paramsChangeByPage.value = false;
+    return;
+  }
+  
+  filters.value = {
+    search: null,
+    sort: 'latest',
+    dateFrom: null,
+    dateTo: null,
+    brand: null,
+    model: null,
+    generation: null,
+    author: null,
+  };
+  currentPage.value = 0;
+
+  if(route.query.search) {
+    filters.value.search = route.query.search as string;
+  }
+  if(route.query.sort) {
+    filters.value.sort = route.query.sort as string;
+  }
+  if(route.query.dateFrom) {
+    filters.value.dateFrom = new Date(route.query.dateFrom as string);
+  }
+  if(route.query.dateTo) {
+    filters.value.dateTo = new Date(route.query.dateTo as string);
+  }
+  if(route.query.brand) {
+    filters.value.brand = parseInt(route.query.brand as string);
+  }
+  if(route.query.model) {
+    filters.value.model = parseInt(route.query.model as string);
+  }
+  if(route.query.generation) {
+    filters.value.generation = parseInt(route.query.generation as string);
+  }
+  if(route.query.author) {
+    filters.value.author = route.query.author as string;
+  }
+  if(route.query.page) {
+    currentPage.value = parseInt(route.query.page as string);
+  }
+  loadPosts();
 }
 
 const loadPosts = async () => {
   pageStatus.value = 'loading';
-  updateSearchParams();
   const filtersToSend = {
     ...filters.value,
     page: currentPage.value,
@@ -158,10 +239,15 @@ const goToLastPage = () => {
   loadPosts();
 };
 
-const refreshPage = async () => {
+const clearAndRefreshPage = async () => {
   pageStatus.value = 'loading';
   clearFilters();
   currentPage.value = 0;
+  loadPosts();
+};
+
+const refreshPageAfterError = async () => {
+  pageStatus.value = 'loading';
   loadPosts();
 };
 
@@ -170,8 +256,13 @@ onMounted(() => {
   window.addEventListener('click', clickedOutsideFilters);
   window.addEventListener('click', clickedOutsideInfo);
   onResize();
-  loadPosts();
 });
+
+watch(() => route.query, () => {
+  console.log(route);
+  paramsChangeByPage.value = false;
+  loadFiltersFromUrl();
+}, { immediate: true, deep: true });
 </script>
 
 <template>
@@ -217,7 +308,7 @@ onMounted(() => {
               <button class="text-button text-button__medium text-button__primary" @click="clearFilters()">
                 <span>Wyczyść filtry</span>
               </button>
-              <button class="text-button text-button__medium text-button__secondary" @click="refreshPage()">
+              <button class="text-button text-button__medium text-button__secondary" @click="clearAndRefreshPage()">
                 <span>Odśwież</span>
               </button>
             </div>
@@ -231,7 +322,7 @@ onMounted(() => {
             </div>
             <div class="page-error__description">Wystąpił błąd podczas ładowania instrukcji napraw pojazdów na tej stronie. Odśwież stronę lub spróbuj ponownie później.</div>
             <div class="page-error__actions">
-              <button class="text-button text-button__medium text-button__primary" @click="refreshPage()">
+              <button class="text-button text-button__medium text-button__primary" @click="refreshPageAfterError()">
                 <span>Odśwież</span>
               </button>
             </div>
@@ -285,7 +376,7 @@ onMounted(() => {
   @apply lg:pb-0;
 
   &__filters {
-    @apply fixed bottom-[72px] left-0 bg-zinc-900 bg-opacity-50 w-full h-full;
+    @apply fixed bottom-[72px] left-0 bg-zinc-900 bg-opacity-50 w-full h-full z-20;
     height: calc(100vh - theme('spacing.20') - 72px);
     @apply lg:sticky lg:top-20 lg:left-0 lg:border-r lg:border-r-zinc-700 lg:max-w-xs;
 
