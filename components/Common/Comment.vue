@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { FlagIcon, HandThumbDownIcon, HandThumbUpIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, PencilIcon } from '@heroicons/vue/24/solid';
+import { FlagIcon, HandThumbDownIcon, HandThumbUpIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/solid';
 
-const { comment } = defineProps<{
+const props = defineProps<{
+  postId: number;
   comment: PostComment;
 }>();
 
@@ -39,17 +40,21 @@ const replyToComment = () => {
   }
 };
 
+const hideReply = () => {
+  replyVisible.value = false;
+};
+
 const loadMoreReplies = () => {
   commentsToDisplay.value = [
     ...commentsToDisplay.value,
-    ...comment.children.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 12),
+    ...props.comment.children.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 12),
   ];
 };
 
 
 onMounted(() => {
   document.addEventListener('click', clickedOutside);
-  commentsToDisplay.value = comment.children.slice(0, 3);
+  commentsToDisplay.value = props.comment.children.slice(0, 3);
 });
 </script>
 
@@ -77,7 +82,11 @@ onMounted(() => {
                   <PencilIcon class="option-icon"></PencilIcon>
                   <span>Edytuj</span>
                 </button>
-                <button class="option">
+                <button v-if="isLoggedIn && comment.isUserComment" class="option destructive">
+                  <TrashIcon class="option-icon"></TrashIcon>
+                  <span>Usuń</span>
+                </button>
+                <button v-if="!isLoggedIn || !comment.isUserComment"  class="option">
                   <FlagIcon class="option-icon"></FlagIcon>
                   <span>Zgłoś</span>
                 </button>
@@ -112,12 +121,11 @@ onMounted(() => {
           <span>Więcej odpowiedzi</span>
         </button>
       </div>
-      <div v-if="replyVisible" class="write-reply">
-        <CommonWriteComment />
-      </div>
-    </div>
-    <div v-if="isLoggedIn" class="write">
-      <CommonWriteComment />
+      <Transition name="fade">
+        <div v-if="replyVisible" class="write-reply">
+          <CommonWriteComment :postId="props.postId" @closeClicked="hideReply()" />
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -178,6 +186,14 @@ onMounted(() => {
             .option-icon {
               @apply w-4 h-4 text-zinc-400;
             }
+
+            &.destructive {
+              @apply text-red-600;
+
+              .option-icon {
+                @apply text-red-600;
+              } 
+            }
           }
         }
       }
@@ -203,11 +219,13 @@ onMounted(() => {
       }
 
       .like-active {
-        @apply bg-green-600 text-white;
+        @apply text-green-600;
+        @apply hover:text-green-400;
       }
 
       .dislike-active {
-        @apply bg-red-600 text-white;
+        @apply text-red-600;
+        @apply hover:text-red-400;
       }
     }
   }

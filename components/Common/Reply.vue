@@ -56,7 +56,11 @@ onMounted(() => {
                   <PencilIcon class="option-icon"></PencilIcon>
                   <span>Edytuj</span>
                 </button>
-                <button class="option">
+                <button v-if="isLoggedIn && comment.isUserComment" class="option destructive">
+                  <TrashIcon class="option-icon"></TrashIcon>
+                  <span>Usuń</span>
+                </button>
+                <button v-if="!isLoggedIn || !comment.isUserComment" class="option">
                   <FlagIcon class="option-icon"></FlagIcon>
                   <span>Zgłoś</span>
                 </button>
@@ -136,6 +140,14 @@ onMounted(() => {
 
             .option-icon {
               @apply w-4 h-4 text-zinc-400;
+            }
+
+            &.destructive {
+              @apply text-red-600;
+
+              .option-icon {
+                @apply text-red-600;
+              }
             }
           }
         }

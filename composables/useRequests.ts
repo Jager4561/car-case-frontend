@@ -6,7 +6,7 @@ export type ReqError = {
 export const useRequests = () => {
   const runtimeConfig = useRuntimeConfig();
 
-  const performRequest = async <T>(method: string, route: string, data?: any): Promise<T | ReqError> => {
+  const performRequest = async <T>(method: string, route: string, data?: any, isFormData?: boolean): Promise<T | ReqError> => {
     const sessionState = useAuthState();
     const session = sessionState.sessionData.value;
     if(!session) {
@@ -15,13 +15,15 @@ export const useRequests = () => {
         message: 'No session found',
       };
     }
+    const headers = new Headers();
+    headers.append('Authorization', `Bearer ${session.access_token}`);
+    if(!isFormData) {
+      headers.append('Content-Type', 'application/json');
+    }
     const response = await fetch(`${runtimeConfig.public.apiUrl}${route}`, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify(data),
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data), 
     });
     if(response.status === 401) {
       const refresh = await fetch(`${runtimeConfig.public.apiUrl}/auth/refresh`, {
@@ -36,13 +38,17 @@ export const useRequests = () => {
       if(refresh.status === 200) {
         sessionState.saveSession(await refresh.json());
         return await performRequest(method, route, data);
-      } else {
+      } else if (refresh.status === 401) {
         sessionState.deleteSession();
         throw {
           type: 'token_expired',
           message: 'Token expired',
         };
+      } else {
+        throw await refresh.json() as ReqError;
       }
+    } else if (!response.ok) {
+      throw await response.json() as ReqError;
     } else {
       return await response.json() as T;
     }

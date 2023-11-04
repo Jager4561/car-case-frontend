@@ -5,6 +5,7 @@ export const useAuthState = () => {
     refresh_token: string;
   } | null>('auth_session', () => null);
   const isLoggedIn = useState('auth_loggedIn', () => false);
+  const isInitialized = useState('auth_initialized', () => false);
 
   const initSessionState = () => {
     const session = localStorage.getItem('auth_session');
@@ -12,6 +13,7 @@ export const useAuthState = () => {
       sessionData.value = JSON.parse(session);
       isLoggedIn.value = true;
     }
+    isInitialized.value = true;
   }
 
   const getAccessToken = () => {
@@ -36,6 +38,7 @@ export const useAuthState = () => {
 
   return {
     isLoggedIn,
+    isInitialized,
     sessionData,
     initSessionState,
     getAccessToken,

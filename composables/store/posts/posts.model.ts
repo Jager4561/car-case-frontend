@@ -1,10 +1,9 @@
 export interface Post {
-  id: string;
+  id: number;
   date_created: string;
-  date_updated: string;
+  date_modified: string;
   title: string;
   abstract: string;
-  content: string;
   likes: number;
   dislikes: number;
   isLiked: boolean;
@@ -16,6 +15,13 @@ export interface Post {
     name: string;
     avatar: string;
   };
+}
+
+export interface DetailedPost extends Post {
+  content: {
+    type: 'text' | 'image';
+    content: string;
+  }[];
 }
 
 export interface SelectedModel {

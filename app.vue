@@ -9,7 +9,6 @@ dayjs.extend(relativeTime);
 
 dayjs.locale('pl');
 
-const { createErrorToast } = useToasts();
 const { isLoggedIn, initSessionState, deleteSession } = useAuthState();
 const { performRequest } = useRequests();
 const appState = ref('loading');

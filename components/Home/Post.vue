@@ -10,13 +10,37 @@ dayjs.extend(relativeTime);
 
 dayjs.locale('pl');
 
-const { post } = defineProps<{
+const props = defineProps<{
   post: Post;
 }>();
 
 const { isLoggedIn } = useAuthState();
+const { ratePost, deleteRating } = usePostsState();
 const commentsVisible = ref(false);
 const commentsToDisplay = ref<PostComment[]>([]);
+const postLock = ref(false);
+
+const likePost = async () => {
+  if (postLock.value) return;
+  postLock.value = true;
+  if(props.post.isLiked) {
+    await deleteRating(props.post.id);
+  } else {
+    await ratePost(props.post.id, true);
+  }
+  postLock.value = false;
+};
+
+const dislikePost = async () => {
+  if (postLock.value) return;
+  postLock.value = true;
+  if(props.post.isDisliked) {
+    await deleteRating(props.post.id);
+  } else {
+    await ratePost(props.post.id, false);
+  }
+  postLock.value = false;
+};
 
 const toggleComments = () => {
   commentsVisible.value = !commentsVisible.value;
@@ -25,86 +49,89 @@ const toggleComments = () => {
 const loadMoreComments = () => {
   commentsToDisplay.value = [
     ...commentsToDisplay.value,
-    ...post.comments.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 10),
+    ...props.post.comments.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 10),
   ];
 };
 
 onMounted(() => {
-  commentsToDisplay.value = post.comments.slice(0, 5);
+  commentsToDisplay.value = props.post.comments.slice(0, 5);
 });
 </script>
 
 <template>
   <div class="post">
     <div class="post__container">
-      <NuxtLink :to="'/instrukcje/' + post.id" class="post_header">
-        <div class="title">{{ post.title }}</div>
+      <NuxtLink :to="'/instrukcje/' + props.post.id" class="post_header">
+        <div class="title">{{ props.post.title }}</div>
         <div class="publish_info">
           <div class="created">
             <CalendarIcon class="icon" />
-            <span>{{ dayjs(post.date_created).fromNow() }}</span>
+            <span>{{ dayjs(props.post.date_created).fromNow() }}</span>
           </div>
-          <div v-if="post.date_modified != null" class="modified">
+          <div v-if="props.post.date_modified != null" class="modified">
             <PencilSquareIcon class="icon" />
-            <span>{{ dayjs(post.date_modified).fromNow() }}</span>
+            <span>{{ dayjs(props.post.date_modified).fromNow() }}</span>
           </div>
         </div>
       </NuxtLink>
-      <NuxtLink :to="'/instrukcje/' + post.id" class="short_description">
-        <p>{{ post.abstract }}</p>
+      <NuxtLink :to="'/instrukcje/' + props.post.id" class="short_description">
+        <p>{{ props.post.abstract }}</p>
       </NuxtLink>
       <div class="spacer"></div>
       <div class="post_footer">
         <div class="post_info">
-          <NuxtLink :to="{ path: '/', query: { brand: post.model.brand.id, model: post.model.id, generation: post.model.generation.id } }" class="model">
+          <NuxtLink :to="{ path: '/', query: { brand: props.post.model.brand.id, model: props.post.model.id, generation: props.post.model.generation.id } }" class="model">
             <div class="model_image">
-              <Image :src="post.model.generation.image" alt="car" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              <Image :src="props.post.model.generation.image" alt="car" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
-            <div class="fuel_mark" :style="{ backgroundColor: post.model.engine.fuel.color }">{{ post.model.engine.fuel.name }}</div>
-            <span class="model_name">{{ post.model.brand.name + ' ' + post.model.name + ' ' + post.model.generation.name + ' (' + post.model.engine.name + ')' }}</span>
+            <div class="fuel_mark" :style="{ backgroundColor: props.post.model.engine.fuel.color }">{{ props.post.model.engine.fuel.name }}</div>
+            <span class="model_name">{{ props.post.model.brand.name + ' ' + props.post.model.name + ' ' + props.post.model.generation.name + ' (' + props.post.model.engine.name + ')' }}</span>
           </NuxtLink>
-          <NuxtLink :to="{ path: '/', query: { author: post.author.id } }" class="author">
+          <NuxtLink :to="{ path: '/', query: { author: props.post.author.id } }" class="author">
             <div class="author_image">
-              <Image :src="post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              <Image :src="props.post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
-            <span class="author_name">{{ post.author.name }}</span>
+            <span class="author_name">{{ props.post.author.name }}</span>
           </NuxtLink>
         </div>
         <div class="post_actions">
-          <NuxtLink :to="{ path: '/', query: { author: post.author.id } }" class="author">
+          <NuxtLink :to="{ path: '/', query: { author: props.post.author.id } }" class="author">
             <div class="author_image">
-              <Image :src="post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              <Image :src="props.post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
-            <span class="author_name">{{ post.author.name }}</span>
+            <span class="author_name">{{ props.post.author.name }}</span>
           </NuxtLink>
           <div class="actions">
-            <button class="icon_button" :disabled="!isLoggedIn" :class="{ 'like-active': post.isLiked }">
+            <button class="icon_button" :disabled="!isLoggedIn || postLock" :class="{ 'like-active': props.post.isLiked }" @click="likePost()">
               <HandThumbUpIcon class="icon" />
-              <span class="value">{{ post.likes }}</span>
+              <span class="value">{{ props.post.likes }}</span>
             </button>
-            <button class="icon_button" :disabled="!isLoggedIn" :class="{ 'dislike-active': post.isDisliked }">
+            <button class="icon_button" :disabled="!isLoggedIn || postLock" :class="{ 'dislike-active': props.post.isDisliked }" @click="dislikePost()">
               <HandThumbDownIcon class="icon" />
-              <span class="value">{{ post.dislikes }}</span>
+              <span class="value">{{ props.post.dislikes }}</span>
             </button>
-            <button class="icon_button" :disabled="post.comments.length === 0" @click="toggleComments()" :class="{ active: commentsVisible }">
+            <button class="icon_button" :disabled="props.post.comments.length === 0" @click="toggleComments()" :class="{ active: commentsVisible }">
               <ChatBubbleLeftRightIcon class="icon" />
-              <span class="value">{{ post.comments.length }}</span>
+              <span class="value">{{ props.post.comments.length }}</span>
             </button>
           </div>
         </div>
       </div>
     </div>
     <Transition name="fade">
-      <div v-if="commentsVisible && post.comments.length > 0" class="post__comments">
-        <CommonComment v-for="comment in commentsToDisplay" :comment="comment" />
+      <div v-if="commentsVisible && props.post.comments.length > 0" class="post__comments">
+        <CommonComment v-for="comment in commentsToDisplay" :comment="comment" :postId="props.post.id" />
         <div class="see-more-comments">
           <div class="login-note">
             <p v-if="!isLoggedIn"><NuxtLink to="/zaloguj">Zaloguj się </NuxtLink> lub <NuxtLink to="/zarejestruj">zarejestruj</NuxtLink> aby dodać komentarz.</p>
           </div>
-          <button v-if="commentsToDisplay.length < post.comments.length" class="text-button text-button__thertiary text-button__small" @click="loadMoreComments()">
+          <button v-if="commentsToDisplay.length < props.post.comments.length" class="text-button text-button__thertiary text-button__small" @click="loadMoreComments()">
             <EllipsisHorizontalIcon class="button-icon"></EllipsisHorizontalIcon>
             <span>Więcej komentarzy</span>
           </button>
+        </div>
+        <div v-if="isLoggedIn" class="write">
+          <CommonWriteComment :postId="props.post.id" :closeActive="false" />
         </div>
       </div>
     </Transition>
@@ -215,14 +242,6 @@ onMounted(() => {
             .value {
               @apply text-sm font-medium;
             }
-
-            .like-active {
-              @apply bg-green-600 text-white;
-            }
-
-            .dislike-active {
-              @apply bg-red-600 text-white;
-            }
           }
 
           .icon_button.active {
@@ -231,6 +250,16 @@ onMounted(() => {
 
           .icon_button:disabled {
             @apply pointer-events-none;
+          }
+
+          .like-active {
+            @apply text-green-600;
+            @apply hover:text-green-400;
+          }
+
+          .dislike-active {
+            @apply text-red-600;
+            @apply hover:text-red-400;
           }
         }
       }
@@ -262,6 +291,10 @@ onMounted(() => {
           @apply text-zinc-200 duration-200 hover:text-darkCyan cursor-pointer;
         }
       }
+    }
+
+    .write {
+      @apply w-full h-auto;
     }
   }
 }

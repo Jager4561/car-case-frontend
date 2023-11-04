@@ -132,11 +132,19 @@
   &__primary {
     @apply bg-darkCyan text-white;
     @apply hover:filter hover:brightness-110;
+
+    &:disabled {
+      @apply text-zinc-200 filter brightness-50 pointer-events-none;
+    }
   }
 
   &__secondary {
     @apply bg-transparent text-white bg-zinc-700;
     @apply lg:hover:bg-zinc-600;
+
+    &:disabled {
+      @apply text-zinc-400 pointer-events-none;
+    }
   }
 
   &__thertiary {

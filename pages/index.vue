@@ -259,7 +259,6 @@ onMounted(() => {
 });
 
 watch(() => route.query, () => {
-  console.log(route);
   paramsChangeByPage.value = false;
   loadFiltersFromUrl();
 }, { immediate: true, deep: true });
@@ -277,8 +276,8 @@ watch(() => route.query, () => {
     <article class="content">
       <Transition name="fade" mode="out-in">
         <HomeLoader v-if="pageStatus === 'loading'"></HomeLoader>
-        <div v-else-if="pageStatus === 'loaded'" class="models-list">
-          <HomePost v-for="post in posts" :post="post" />
+        <div v-else-if="pageStatus === 'loaded'" class="post-list">
+          <HomePost v-for="post in posts" :key="post.id" :post="post" />
           <div class="pagination">
             <button v-show="totalPages > 2 && currentPage >= 2" class="icon-button icon-button__secondary icon-button__small" @click="goToFirstPage()">
               <ChevronDoubleLeftIcon class="icon" />
@@ -395,7 +394,7 @@ watch(() => route.query, () => {
     @apply w-full h-auto p-4;
     @apply lg:p-6;
 
-    .models-list {
+    .post-list {
       @apply w-full h-auto;
 
       .pagination {

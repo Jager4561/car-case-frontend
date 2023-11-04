@@ -3,8 +3,11 @@ import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/vue/24/outline';
 import { HomeIcon, SwatchIcon, ArchiveBoxIcon, ChatBubbleLeftEllipsisIcon, InformationCircleIcon, UserPlusIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/solid';
 
 const { isLoggedIn } = useAuthState();
+const { account, fetchPending, fetchAccount } = useAccount();
+const { createErrorToast } = useToasts();
 const mobileMenuOpen = ref(false);
 const notificationsOpen = ref(false);
+const accountStatus = ref<'loading' | 'error' | 'loaded'>('loading');
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value;
@@ -48,10 +51,37 @@ const isClickedOutsideMenu = (event: MouseEvent) => {
   }
 };
 
+const fetchAccountData = async () => {
+  if(fetchPending.value) return;
+  if(account.value != null) {
+    accountStatus.value = 'loaded';
+    return;
+  };
+  try {
+    accountStatus.value = 'loading';
+    await fetchAccount();
+    accountStatus.value = 'loaded';
+  } catch (error) {
+    createErrorToast('Brak danych konta!', 'Wystąpił niespodziewany błąd poczas pobierania danych konta. Odśwież stronę i spróbuj ponownie.');
+    console.error(error);
+    accountStatus.value = 'error';
+  }
+};
+
 onMounted(() => {
   window.addEventListener('click', isClickedOutsideNotifications);
   window.addEventListener('click', isClickedOutsideMenu);
+
+  if(isLoggedIn.value) {
+    fetchAccountData();
+  }
 });
+
+watch(account, () => {
+  if(account.value != null && isLoggedIn.value) {
+    fetchAccountData();
+  }
+})
 </script>
 
 <template>
@@ -74,16 +104,42 @@ onMounted(() => {
     </div>
     <div class="end">
       <template v-if="isLoggedIn">
-        <button ref="notificationsButton" aria-label="Powiadomienia" class="notifications icon_button" :class="{ active: notificationsOpen }" @click="toggleNotifications()">
+        <!-- <button ref="notificationsButton" aria-label="Powiadomienia" class="notifications icon_button" :class="{ active: notificationsOpen }" @click="toggleNotifications()">
           <BellIcon class="w-6 h-6" />
           <span class="mark"></span>
         </button>
-        <HeaderNotifications v-model="notificationsOpen"></HeaderNotifications>
+        <HeaderNotifications v-model="notificationsOpen"></HeaderNotifications> -->
         <NuxtLink to="/konto" aria-label="Profil" class="profile" activeClass="active">
-          <NuxtImg src="img/revenant.png"></NuxtImg>
-          <div class="username">
-            <span>Jager456</span>
-          </div>
+          <Transition name="fade" mode="out-in">
+            <div v-if="accountStatus == 'loading'" class="profile__container">
+              <div class="loader-wrapper">
+                <div class="loader">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+              </div>
+              <div class="username">
+                <span>Konto</span>
+              </div>
+            </div>
+            <div v-else-if="accountStatus == 'loaded'" class="profile__container">
+              <div class="avatar">
+                <Image :src="account!.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              </div>
+              <div class="username">
+                <span>{{ account!.name }}</span>
+              </div>
+            </div>
+            <div v-else class="profile__container">
+              <div class="avatar">
+                <Image :src="null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              </div>
+              <div class="username">
+                <span>Konto</span>
+              </div>
+            </div>
+          </Transition>
         </NuxtLink>
       </template>
       <template v-if="!isLoggedIn">
@@ -191,10 +247,26 @@ header {
     }
 
     .profile {
-      @apply w-auto h-10 rounded-full flex items-center bg-zinc-800 justify-center relative overflow-hidden duration-300;
+      @apply w-auto h-10 rounded-full bg-zinc-800 relative overflow-hidden duration-300;
 
-      img {
-        @apply w-10 h-10 rounded-full object-cover object-center;
+      &__container {
+        @apply w-auto h-full flex items-center justify-center;
+      }
+
+      .loader-wrapper {
+        @apply w-10 h-10 items-center justify-center mr-1;
+
+        .loader {
+          @apply w-10 h-10 space-x-1;
+
+          .dot {
+            @apply w-1.5 h-1.5;
+          }
+        }
+      }
+
+      .avatar {
+        @apply w-10 h-10 rounded-full object-cover object-center overflow-hidden;
       }
 
       .username {
@@ -204,7 +276,7 @@ header {
     }
 
     .active {
-      @apply bg-zinc-700 text-white;
+      @apply ring-1 ring-darkCyan;
     }
 
     .login-desktop, .register-desktop {

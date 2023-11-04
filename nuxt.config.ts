@@ -43,5 +43,5 @@ export default defineNuxtConfig({
       language: 'pl-PL',
       titleSeparator: '•'
     }
-  },
+  }
 });
