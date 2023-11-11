@@ -11,15 +11,19 @@ useSeoMeta({
 
 const { logoutUser } = useAuthService();
 const { deleteSession, sessionData } = useAuthState();
+const { showPopup } = usePopups();
+const postState = usePostsState();
+const modelsState = useModelsState();
+const filtersState = useFilters();
+const accountState = useAccount();
 const { account, fetchPending, fetchAccount } = useAccount();
+
 const mobileView = ref<'content' | 'details' | 'info'>('content');
 const isDesktop = ref(false);
 const detailsRef = ref<HTMLDivElement | null>(null);
 const infoRef = ref<HTMLDivElement | null>(null);
 const footerRef = ref<HTMLDivElement | null>(null);
 const pageStatus = ref<'loading' | 'error' | 'loaded'>('loading');
-
-const usernameValue = ref('');
 
 const openAccountDetails = () => {
   mobileView.value = 'details';
@@ -67,11 +71,6 @@ const clickedOutsideInfo = (event: MouseEvent) => {
   }
 };
 
-const preparePage = () => {
-  if (account.value == null) return;
-  usernameValue.value = account.value.name;
-};
-
 const refreshPage = () => {
   fetchAccountData();
 };
@@ -81,6 +80,10 @@ const logout = async () => {
     if (sessionData.value != null) {
       await logoutUser(sessionData.value.refresh_token);
     }
+    postState.resetState();
+    modelsState.resetState();
+    filtersState.resetState();
+    accountState.resetState();
     deleteSession();
     navigateTo('/');
   } catch (error) {
@@ -90,18 +93,20 @@ const logout = async () => {
   }
 };
 
+const deleteAccount = async () => {
+  showPopup('accountDeleteConfirm');
+}
+
 const fetchAccountData = async () => {
-  if(fetchPending.value) return;
-  if(account.value != null) {
+  if (fetchPending.value) return;
+  if (account.value != null) {
     pageStatus.value = 'loaded';
-    preparePage();
     return;
-  };
+  }
   try {
     pageStatus.value = 'loading';
     await fetchAccount();
     pageStatus.value = 'loaded';
-    preparePage();
   } catch (error) {
     pageStatus.value = 'error';
   }
@@ -116,10 +121,10 @@ onMounted(() => {
 });
 
 watch(account, () => {
-  if(account.value != null) {
+  if (account.value != null) {
     fetchAccountData();
   }
-})
+});
 </script>
 
 <template>
@@ -144,37 +149,53 @@ watch(account, () => {
         <div v-else-if="pageStatus === 'loaded'" class="account-content">
           <div class="account-content__container">
             <div class="account-content__header">
-              <div class="title">
-                Zdjęcie profilowe
-              </div>
-              <div class="description">
-                Tutaj możesz zmienić swoje zdjęcie profilowe wyświetlane w instrukacjach i komentarzach.
-              </div>
+              <div class="title">Zdjęcie profilowe</div>
+              <div class="description">Tutaj możesz zmienić swoje zdjęcie profilowe wyświetlane w instrukacjach i komentarzach.</div>
             </div>
             <div class="account-content__spacer"></div>
             <AccountAvatar :account="account" />
             <div class="account-content__spacer"></div>
             <div class="account-content__header">
-              <div class="title">
-                Nazwa użytkownika
-              </div>
-              <div class="description">
-                Tutaj możesz zmienić swoją nazwę użytkownika.
-              </div>
+              <div class="title">Nazwa użytkownika</div>
+              <div class="description">Tutaj możesz zmienić swoją nazwę użytkownika.</div>
             </div>
             <div class="account-content__spacer"></div>
             <AccountUsername :account="account" />
             <div class="account-content__spacer"></div>
             <div class="account-content__header">
-              <div class="title">
-                Zmiana hasła
-              </div>
-              <div class="description">
-                Tutaj możesz zmienić swoje hasło. Jeśli zmieniłeś hasło w ciągu 24 godzin musisz odczekać 24 godziny zanim będziesz mógł zmienić hasło ponownie.
-              </div>
+              <div class="title">Zmiana hasła</div>
+              <div class="description">Tutaj możesz zmienić swoje hasło. Jeśli zmieniłeś hasło w ciągu 24 godzin musisz odczekać 24 godziny zanim będziesz mógł zmienić hasło ponownie.</div>
             </div>
             <div class="account-content__spacer"></div>
             <AccountPassword :account="account" />
+            <div class="account-content__spacer"></div>
+            <div class="account-content__option">
+              <div class="label">
+                <div class="title">Wyloguj się z konta</div>
+                <div class="description">
+                  Opuść konto i przejdź do strony głównej.
+                </div>
+              </div>
+              <div class="value">
+                <button type="button" class="text-button text-button__medium text-button__danger" @click="logout()">
+                  <span>Wyloguj</span>
+                </button>
+              </div>
+            </div>
+            <div class="account-content__spacer"></div>
+            <div class="account-content__option">
+              <div class="label">
+                <div class="title">Usuwanie konta</div>
+                <div class="description">
+                  Usuń swoje konto. Po usunięciu konta nie będzie możliwości jego odzyskania. Twoje komentarze i instrukcje zostaną zachowane jako stworzone przez anonimowego autora.
+                </div>
+              </div>
+              <div class="value">
+                <button type="button" class="text-button text-button__medium text-button__danger" @click="deleteAccount()">
+                  <span>Usuń konto</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div v-else class="page-error">
@@ -254,8 +275,8 @@ watch(account, () => {
   }
 
   .content {
-    @apply w-full h-auto p-4;
-    @apply lg:p-6;
+    @apply w-full h-auto p-4 mb-8;
+    @apply lg:p-6 lg:pb-12;
 
     .loader-container {
       @apply w-full h-full flex flex-col space-y-3 items-center justify-center;
@@ -286,6 +307,28 @@ watch(account, () => {
 
         .description {
           @apply text-sm font-light;
+        }
+      }
+
+      &__option {
+        @apply w-full h-auto flex flex-col items-end justify-between;
+        @apply md:flex-row md:space-x-6;
+        @apply lg:flex-col md:space-x-0;
+        @apply xl:flex-row md:space-x-6;
+
+        .label {
+          @apply w-full mb-3;
+          @apply md:w-auto md:mb-0; 
+          @apply lg:w-full lg:mb-3;
+          @apply xl:w-auto xl:mb-0;
+
+          .title {
+            @apply font-semibold mb-1;
+          }
+
+          .description {
+            @apply text-sm font-light;
+          }
         }
       }
 

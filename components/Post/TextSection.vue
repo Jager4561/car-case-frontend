@@ -1,12 +1,18 @@
 <script setup lang="ts">
 const props = defineProps<{
-  data: string;
+  data: {
+    type: string;
+    size: number;
+    content: string;
+  };
 }>();
+
+const availableSizes = ref([12, 16, 20, 24, 28, 32, 36, 40]);
 </script>
 
 <template>
-  <div class="text-section">
-    {{ props.data }}
+  <div class="text-section" :style="{fontSize: availableSizes[props.data.size] + 'px'}">
+    {{ props.data.content }}
   </div>
 </template>
 

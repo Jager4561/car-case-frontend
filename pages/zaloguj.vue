@@ -16,6 +16,10 @@ useSeoMeta({
 
 const { loginUser } = useAuthService();
 const { saveSession } = useAuthState();
+const postState = usePostsState();
+const modelsState = useModelsState();
+const filtersState = useFilters();
+const accountState = useAccount();
 const { createErrorToast, createWarningToast } = useToasts();
 const isFormPending = ref(false);
 
@@ -50,6 +54,10 @@ const onFormSubmit = async () => {
       password: inputs.password,
     });
     saveSession(result);
+    postState.resetState();
+    modelsState.resetState();
+    filtersState.resetState();
+    accountState.resetState();
     navigateTo('/');
   } catch (error: any) {
     isFormPending.value = false;

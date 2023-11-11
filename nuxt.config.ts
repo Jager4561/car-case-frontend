@@ -35,6 +35,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
+      appVersion: '1.0.0',
       apiUrl: process.env.API_URL,
       assetsUrl: process.env.ASSETS_URL,
       siteUrl: 'https://carcase.codeu.io',

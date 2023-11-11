@@ -1,7 +1,8 @@
 export interface Post {
   id: number;
+  status: 'published' | 'draft';
   date_created: string;
-  date_modified: string;
+  date_updated: string;
   title: string;
   abstract: string;
   likes: number;
@@ -11,7 +12,7 @@ export interface Post {
   model: SelectedModel;
   comments: PostComment[];
   author: {
-    id: string;
+    id: number;
     name: string;
     avatar: string;
   };
@@ -20,7 +21,9 @@ export interface Post {
 export interface DetailedPost extends Post {
   content: {
     type: 'text' | 'image';
+    size?: number;
     content: string;
+    file?: string;
   }[];
 }
 
@@ -55,9 +58,10 @@ export interface SelectedModel {
 }
 
 export interface PostComment {
-  id: string;
+  id: number;
+  status: 'published' | 'deleted' | 'blocked';
   date_created: string;
-  date_updated: string;
+  date_updated: string | null;
   author: {
     id: string;
     name: string;
@@ -69,22 +73,22 @@ export interface PostComment {
   isLiked: boolean;
   isDisliked: boolean;
   isUserComment: boolean;
-  children: ChildComment[];
+  children?: PostComment[];
 }
 
-export interface ChildComment { 
-  id: string;
-  date_created: string;
-  date_updated: string;
-  author: {
-    id: string;
-    name: string;
-    avatar: string;
-  }
-  content: string;
-  likes: number;
-  dislikes: number;
-  isLiked: boolean;
-  isDisliked: boolean;
-  isUserComment: boolean;
+export interface AddPostPayload {
+  status: string;
+  title: string;
+  brand: number;
+  model: number;
+  generation: number;
+  hull_type: number;
+  engine: number;
+  abstract: string;
+  sections: {
+    type: 'text' | 'image';
+    size?: number;
+    content: string | null;
+    file?: File | null;
+  }[];
 }

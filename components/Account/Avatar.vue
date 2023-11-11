@@ -89,7 +89,7 @@ onMounted(() => {
       <button :disabled="isLoading" class="text-button text-button__medium text-button__primary" @click="setNewImage()">
         <span>Zmień zdjęcie</span>
       </button>
-      <button :disabled="isLoading" class="text-button text-button__medium text-button__secondary" @click="deleteAvatar()">
+      <button v-if="account.avatar == null" :disabled="isLoading" class="text-button text-button__medium text-button__secondary" @click="deleteAvatar()">
         <span>Usuń zdjęcie</span>
       </button>
     </div>

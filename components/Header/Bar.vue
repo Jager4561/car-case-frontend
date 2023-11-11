@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/vue/24/outline';
-import { HomeIcon, SwatchIcon, ArchiveBoxIcon, ChatBubbleLeftEllipsisIcon, InformationCircleIcon, UserPlusIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/solid';
+import { Bars3Icon, XMarkIcon, BellIcon, PlusIcon } from '@heroicons/vue/24/outline';
+import { HomeIcon, SwatchIcon, ArchiveBoxIcon, InformationCircleIcon, UserPlusIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/solid';
 
+const route = useRoute();
 const { isLoggedIn } = useAuthState();
 const { account, fetchPending, fetchAccount } = useAccount();
 const { createErrorToast } = useToasts();
 const mobileMenuOpen = ref(false);
 const notificationsOpen = ref(false);
+const isntExact = computed(() => {
+  if(!route.path) return false;
+  const containsEditor = route.path.includes('/edytor');
+  if(containsEditor) {
+    return route.path === '/edytor/+';
+  }
+  return false;
+});
 const accountStatus = ref<'loading' | 'error' | 'loaded'>('loading');
 
 const toggleMobileMenu = () => {
@@ -98,7 +107,6 @@ watch(account, () => {
         <NuxtLink to="/" class="nav__link" active-class="nav__active"> Główna </NuxtLink>
         <NuxtLink to="/modele" class="nav__link" active-class="nav__active"> Modele </NuxtLink>
         <NuxtLink v-if="isLoggedIn" to="/moje-dokumentacje" class="nav__link" active-class="nav__active"> Moje dokumetacje </NuxtLink>
-        <NuxtLink v-if="isLoggedIn" to="/moje-opinie" class="nav__link" active-class="nav__active"> Moje opinie </NuxtLink>
         <NuxtLink to="/o-aplikacji" class="nav__link" active-class="nav__active"> O aplikacji </NuxtLink>
       </nav>
     </div>
@@ -109,6 +117,13 @@ watch(account, () => {
           <span class="mark"></span>
         </button>
         <HeaderNotifications v-model="notificationsOpen"></HeaderNotifications> -->
+        <NuxtLink to="/edytor/+" class="icon-button icon-button__primary icon-button__small add-post" :class="{disabled: isntExact}">
+          <PlusIcon class="button-icon" />
+        </NuxtLink>
+        <NuxtLink to="/edytor/+" class="text-button text-button__primary text-button__small add-post" :class="{disabled: isntExact}">
+          <PlusIcon class="button-icon" />
+          <span>Utwórz instrukcję</span>
+        </NuxtLink>
         <NuxtLink to="/konto" aria-label="Profil" class="profile" activeClass="active">
           <Transition name="fade" mode="out-in">
             <div v-if="accountStatus == 'loading'" class="profile__container">
@@ -173,10 +188,6 @@ watch(account, () => {
           <ArchiveBoxIcon class="icon" />
           <span> Moje dokumentacje </span>
         </NuxtLink>
-        <NuxtLink v-if="isLoggedIn" to="/moje-opinie" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
-          <ChatBubbleLeftEllipsisIcon class="icon" />
-          <span> Moje opinie </span>
-        </NuxtLink>
         <NuxtLink to="/o-aplikacji" class="mobile-menu__link" activeClass="mobile-menu__active" @click="closeMobileMenu()">
           <InformationCircleIcon class="icon" />
           <span> O aplikacji </span>
@@ -228,7 +239,7 @@ header {
   }
 
   .end {
-    @apply flex items-center justify-end space-x-2;
+    @apply flex items-center justify-end space-x-4;
 
     .icon_button {
       @apply w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-gray-400 duration-150;
@@ -244,6 +255,14 @@ header {
 
     .notifications.active {
       @apply bg-zinc-700 text-white;
+    }
+
+    .icon-button.add-post {
+      @apply sm:hidden;
+    }
+
+    .text-button.add-post {
+      @apply hidden sm:flex;
     }
 
     .profile {

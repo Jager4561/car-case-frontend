@@ -6,6 +6,7 @@ const props = withDefaults(
     modelValue: string | number | null;
     clearVisible?: boolean;
     placeholder?: string;
+    disabled?: boolean;
     options?: {
       value: string | number;
       label: string;
@@ -14,10 +15,11 @@ const props = withDefaults(
   {
     clearVisible: true,
     placeholder: 'Wybierz',
+    disabled: false,
     options: [] as any,
   }
 );
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'onUpdate']);
 
 const listOpen = ref(false);
 const select = ref<HTMLDivElement | null>(null);
@@ -39,6 +41,7 @@ const selectedValue = computed(() => {
 
 const selectValue = (value: string | number | null) => {
   emit('update:modelValue', value);
+  emit('onUpdate', value);
   listOpen.value = false;
 };
 
@@ -57,7 +60,7 @@ const isClickedOutside = (event: MouseEvent) => {
 
 <template>
   <div class="select_input">
-    <div ref="select" tabindex="0" class="field__input field__with-icon" @click="toggleList()">
+    <div ref="select" tabindex="0" class="field__input field__with-icon" @click="toggleList()" :class="{disabled: props.disabled}">
       <div class="inputlike">
         <span v-if="!props.modelValue" class="placeholder">{{ props.placeholder }}</span>
         <div v-if="props.modelValue" class="value">{{ selectedValue }}</div>
@@ -78,7 +81,11 @@ const isClickedOutside = (event: MouseEvent) => {
   @apply w-full h-auto relative;
 
   .field__input {
-    @apply cursor-pointer;
+    @apply cursor-pointer ;
+
+    .inputlike {
+      @apply border-2 border-zinc-800;
+    }
 
     svg {
       @apply duration-200;
@@ -86,6 +93,26 @@ const isClickedOutside = (event: MouseEvent) => {
 
     .rotated {
       @apply transform rotate-180;
+    }
+  }
+
+  .field__input.disabled {
+    @apply pointer-events-none;
+
+    .inputlike {
+      @apply bg-zinc-900 border-2 border-zinc-800;
+    }
+
+    svg {
+      @apply text-zinc-600;
+    }
+
+    .placeholder {
+      @apply text-zinc-600;
+    }
+
+    .value {
+      @apply text-zinc-400;
     }
   }
 

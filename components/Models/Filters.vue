@@ -204,7 +204,7 @@ watch(filtersData, () => {
         <div class="filters__group">
           <div class="field">
             <label for="" class="field__label">Pojazd</label>
-            <InputSelect v-model="filters.brand" placeholder="Marka pojazdu" :options="brands" />
+            <InputSelect v-model="filters.brand" :disabled="brands.length === 0" placeholder="Marka pojazdu" :options="brands" />
           </div>
         </div>
         <div class="filters__single">
@@ -219,7 +219,7 @@ watch(filtersData, () => {
             <InputDate v-model="filters.dateTo" />
           </div>
         </div>
-        <div class="filters__single">
+        <div v-if="fuels.length > 0" class="filters__single">
           <div class="radio-group">
             <div class="title">Paliwo</div>
             <div class="fields fuels-types">
@@ -237,7 +237,7 @@ watch(filtersData, () => {
             </div>
           </div>
         </div>
-        <div class="filters__single">
+        <div v-if="hullTypes.length > 0" class="filters__single">
           <div class="radio-group">
             <div class="title">Typ nadwozia</div>
             <div class="fields">

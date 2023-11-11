@@ -9,7 +9,7 @@ import {
   ChatBubbleLeftRightIcon,
   PresentationChartBarIcon,
 } from '@heroicons/vue/24/outline';
-import { IconAssembly, IconCar, IconSortAscendingNumbers, IconEngine, IconCylinder, IconBolt, IconGasStation, IconCarSuv } from '@tabler/icons-vue';
+import { IconAssembly, IconCar, IconSortAscendingNumbers, IconEngine, IconCylinder, IconBolt, IconGasStation, IconCarSuv, IconWorldShare } from '@tabler/icons-vue';
 import { DetailedPost } from '@/composables/store/posts/posts.model';
 import dayjs from 'dayjs';
 
@@ -25,6 +25,20 @@ const props = withDefaults(
 const { ratePost, deleteRating } = usePostsState();
 
 const { isLoggedIn } = useAuthState();
+const { account } = useAccount();
+
+const commentsCount = computed(() => {
+  let size = 0;
+  props.post.comments.forEach((comment: PostComment) => {
+    comment.children.forEach((child: PostComment) => {
+      if(child.status !== 'published') return;
+      size++;
+    });
+    if(comment.status !== 'published') return;
+    size++;
+  });
+  return size;
+});
 
 const goToCommentsSection = () => {
   const commentsSection = document.getElementById('comments');
@@ -47,6 +61,15 @@ const goToCommentsSection = () => {
       </div>
       <div v-else-if="props.status === 'success'" class="vehicle-info__container">
         <h5 class="vehicle-info__title">Informacje o instrukcji</h5>
+        <div v-if="isLoggedIn && account && props.post.author && props.post.author.id == account.id" class="single-info">
+          <div class="label">
+            <IconWorldShare class="icon" />
+            <span>Status publikacji</span>
+          </div>
+          <div class="value">
+            {{ props.post.status === 'published' ? 'Opublikowano' : 'Nie opublikowano' }}
+          </div>
+        </div>
         <div class="single-info">
           <div class="label">
             <CalendarIcon class="icon" />
@@ -61,22 +84,22 @@ const goToCommentsSection = () => {
             <PencilSquareIcon class="icon" />
             <span>Data modyfikacji</span>
           </div>
-          <div v-if="props.post.date_modified" class="value">
-            {{ dayjs(props.post.date_modified).format('DD.MM.YYYY') }}
+          <div v-if="props.post.date_updated" class="value">
+            {{ dayjs(props.post.date_updated).format('DD.MM.YYYY') }}
           </div>
-          <div v-if="!props.post.date_modified" class="value value-disabled">Nie zmodyfikowano</div>
+          <div v-if="!props.post.date_updated" class="value value-disabled">Nie zmodyfikowano</div>
         </div>
-        <NuxtLink :to="{ path: '/', query: { author: post.author.id } }" class="single-info clickable">
+        <NuxtLink :to="post.author ? { path: '/', query: { author: post.author.id } } : {}" class="single-info clickable" :class="{disabled: post.author == null}">
           <div class="label">
             <UserCircleIcon class="icon" />
             <span>Autor</span>
           </div>
           <div class="post-author">
             <div class="avatar">
-              <Image :src="post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              <Image :src="post.author ? post.author.avatar : null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
             <div class="name">
-              {{ props.post.author.name }}
+              {{ post.author ? props.post.author.name : 'Brak autora' }}
             </div>
           </div>
         </NuxtLink>
@@ -96,7 +119,7 @@ const goToCommentsSection = () => {
             </button>
             <button class="stat" @click="goToCommentsSection()">
               <ChatBubbleLeftRightIcon class="icon" />
-              <span>{{ props.post.comments.length }}</span>
+              <span>{{ commentsCount }}</span>
             </button>
           </div>
         </div>
@@ -171,7 +194,7 @@ const goToCommentsSection = () => {
         <div class="single-info">
           <div class="label">
             <IconCarSuv class="icon" />
-            <span>Typ podwozia</span>
+            <span>Typ nadwozia</span>
           </div>
           <div class="value">{{ post.model.hull_type.name }}</div>
         </div>
@@ -246,6 +269,10 @@ const goToCommentsSection = () => {
     .value-disabled {
       @apply text-neutral-400;
     }
+
+    &.disabled {
+      @apply hover:bg-transparent cursor-default;
+    }
   }
 
   .info-row {
@@ -258,10 +285,9 @@ const goToCommentsSection = () => {
 
   .post-author {
     @apply w-full h-auto flex items-center space-x-3 rounded-full duration-150;
-    @apply hover:bg-zinc-800 hover:text-white;
 
     .avatar {
-      @apply w-14 h-14 rounded-full overflow-hidden;
+      @apply w-14 h-14 rounded-full bg-zinc-950 overflow-hidden;
       @apply md:w-10 md:h-10;
     }
 

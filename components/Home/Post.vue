@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarIcon, PencilSquareIcon, HandThumbUpIcon, HandThumbDownIcon, ChatBubbleLeftRightIcon, EllipsisHorizontalIcon } from '@heroicons/vue/24/solid';
+import { CalendarIcon, PencilSquareIcon, HandThumbUpIcon, HandThumbDownIcon, ChatBubbleLeftRightIcon, EllipsisVerticalIcon, EllipsisHorizontalIcon, PencilIcon, TrashIcon, FlagIcon } from '@heroicons/vue/24/solid';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -16,14 +16,50 @@ const props = defineProps<{
 
 const { isLoggedIn } = useAuthState();
 const { ratePost, deleteRating } = usePostsState();
+const { account } = useAccount();
+const { showPopup } = usePopups();
 const commentsVisible = ref(false);
 const commentsToDisplay = ref<PostComment[]>([]);
+const optionsVisible = ref(false);
+const optionsButton = ref<HTMLButtonElement | null>(null);
+const optionsList = ref<HTMLDivElement | null>(null);
 const postLock = ref(false);
+
+const commentsCount = computed(() => {
+  let size = 0;
+  props.post.comments.forEach((comment: PostComment) => {
+    comment.children.forEach((child: PostComment) => {
+      if (child.status !== 'published') return;
+      size++;
+    });
+    if (comment.status !== 'published') return;
+    size++;
+  });
+  return size;
+});
+
+const toggleOptions = () => {
+  optionsVisible.value = !optionsVisible.value;
+};
+
+const clickedOutside = (event: MouseEvent) => {
+  if(!optionsVisible.value) return;
+  const isTarget = optionsButton.value === event.target;
+  const clickedInside = optionsButton.value?.contains(event.target as Node);
+
+  if(!isTarget && !clickedInside) {
+    optionsVisible.value = false;
+  }
+}
+
+const editPost = () => {
+  navigateTo('/edytor/' + props.post.id);
+};
 
 const likePost = async () => {
   if (postLock.value) return;
   postLock.value = true;
-  if(props.post.isLiked) {
+  if (props.post.isLiked) {
     await deleteRating(props.post.id);
   } else {
     await ratePost(props.post.id, true);
@@ -34,7 +70,7 @@ const likePost = async () => {
 const dislikePost = async () => {
   if (postLock.value) return;
   postLock.value = true;
-  if(props.post.isDisliked) {
+  if (props.post.isDisliked) {
     await deleteRating(props.post.id);
   } else {
     await ratePost(props.post.id, false);
@@ -47,33 +83,71 @@ const toggleComments = () => {
 };
 
 const loadMoreComments = () => {
-  commentsToDisplay.value = [
-    ...commentsToDisplay.value,
-    ...props.post.comments.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 10),
-  ];
+  commentsToDisplay.value = [...commentsToDisplay.value, ...props.post.comments.slice(commentsToDisplay.value.length, commentsToDisplay.value.length + 10)];
+};
+
+const reportPost = () => {
+  showPopup('reportPost', { postId: props.post.id });
+};
+
+const removePost = () => {
+  showPopup('deletePostConfirm', { postId: props.post.id });
 };
 
 onMounted(() => {
+  document.addEventListener('click', clickedOutside);
   commentsToDisplay.value = props.post.comments.slice(0, 5);
 });
+
+watch(
+  () => props.post,
+  () => {
+    commentsToDisplay.value = props.post.comments.slice(0, 5);
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
 <template>
   <div class="post">
     <div class="post__container">
-      <NuxtLink :to="'/instrukcje/' + props.post.id" class="post_header">
-        <div class="title">{{ props.post.title }}</div>
+      <div class="post_header">
+        <NuxtLink :to="'/instrukcje/' + props.post.id" class="title" :title="props.post.title">{{ props.post.title }}</NuxtLink>
         <div class="publish_info">
+          <div v-if="isLoggedIn && account && props.post.author && props.post.author.id == account.id && props.post.status === 'draft'" class="draft-mark">
+              Nieopublikowany
+            </div>
           <div class="created">
             <CalendarIcon class="icon" />
             <span>{{ dayjs(props.post.date_created).fromNow() }}</span>
           </div>
-          <div v-if="props.post.date_modified != null" class="modified">
+          <div v-if="props.post.date_updated != null" class="modified">
             <PencilSquareIcon class="icon" />
-            <span>{{ dayjs(props.post.date_modified).fromNow() }}</span>
+            <span>{{ dayjs(props.post.date_updated).fromNow() }}</span>
           </div>
         </div>
-      </NuxtLink>
+        <div class="options">
+          <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
+            <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
+          </button>
+          <Transition name="list">
+            <div v-show="optionsVisible" ref="optionsList" class="comment-options">
+              <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option" @click="editPost()">
+                <PencilIcon class="option-icon"></PencilIcon>
+                <span>Edytuj</span>
+              </button>
+              <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option destructive" @click="removePost()">
+                <TrashIcon class="option-icon"></TrashIcon>
+                <span>Usuń</span>
+              </button>
+              <button v-if="!isLoggedIn || !account || !post.author || post.author.id != account.id" :disabled="postLock" class="option" @click="reportPost()">
+                <FlagIcon class="option-icon"></FlagIcon>
+                <span>Zgłoś</span>
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </div>
       <NuxtLink :to="'/instrukcje/' + props.post.id" class="short_description">
         <p>{{ props.post.abstract }}</p>
       </NuxtLink>
@@ -87,20 +161,23 @@ onMounted(() => {
             <div class="fuel_mark" :style="{ backgroundColor: props.post.model.engine.fuel.color }">{{ props.post.model.engine.fuel.name }}</div>
             <span class="model_name">{{ props.post.model.brand.name + ' ' + props.post.model.name + ' ' + props.post.model.generation.name + ' (' + props.post.model.engine.name + ')' }}</span>
           </NuxtLink>
-          <NuxtLink :to="{ path: '/', query: { author: props.post.author.id } }" class="author">
+          <NuxtLink :to="props.post.author != null ? { path: '/', query: { author: props.post.author.id } } : {}" class="author" :class="{disabled: props.post.author == null}">
             <div class="author_image">
-              <Image :src="props.post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              <Image :src="props.post.author ? props.post.author.avatar : null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
             </div>
-            <span class="author_name">{{ props.post.author.name }}</span>
+            <span class="author_name">{{ props.post.author ? props.post.author.name : 'Brak autora' }}</span>
           </NuxtLink>
         </div>
         <div class="post_actions">
-          <NuxtLink :to="{ path: '/', query: { author: props.post.author.id } }" class="author">
-            <div class="author_image">
-              <Image :src="props.post.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
-            </div>
-            <span class="author_name">{{ props.post.author.name }}</span>
-          </NuxtLink>
+          <div class="start">
+            <NuxtLink :to="props.post.author != null ? { path: '/', query: { author: props.post.author.id } } : {}" class="author" :class="{disabled: props.post.author == null}">
+              <div class="author_image">
+                <Image :src="props.post.author ? props.post.author.avatar : null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+              </div>
+              <span class="author_name">{{ props.post.author ? props.post.author.name : 'Brak autora' }}</span>
+            </NuxtLink>
+            
+          </div>
           <div class="actions">
             <button class="icon_button" :disabled="!isLoggedIn || postLock" :class="{ 'like-active': props.post.isLiked }" @click="likePost()">
               <HandThumbUpIcon class="icon" />
@@ -112,7 +189,7 @@ onMounted(() => {
             </button>
             <button class="icon_button" :disabled="props.post.comments.length === 0" @click="toggleComments()" :class="{ active: commentsVisible }">
               <ChatBubbleLeftRightIcon class="icon" />
-              <span class="value">{{ props.post.comments.length }}</span>
+              <span class="value">{{ commentsCount }}</span>
             </button>
           </div>
         </div>
@@ -147,15 +224,19 @@ onMounted(() => {
     @apply hover:ring-1 hover:ring-darkCyan;
 
     .post_header {
-      @apply w-full h-auto flex flex-col items-start justify-between space-y-2 pb-4 cursor-pointer;
+      @apply w-full h-auto flex flex-wrap items-start justify-between pb-4 cursor-pointer;
       @apply sm:flex-row sm:space-x-4 sm:space-y-0;
+      @apply md:flex-nowrap;
 
       .title {
-        @apply font-bold flex-grow text-lg;
+        width: calc(100% - theme('spacing.8'));
+        @apply order-1 font-bold text-lg overflow-hidden whitespace-nowrap text-ellipsis;
+        @apply sm:flex-grow sm:order-none;
       }
 
       .publish_info {
-        @apply w-auto h-auto flex items-center space-x-2;
+        @apply order-3 flex-shrink-0 w-full h-auto flex items-center space-x-2 pt-2;
+        @apply sm:w-auto sm:pt-1 sm:order-none;
 
         .created,
         .modified {
@@ -167,6 +248,45 @@ onMounted(() => {
 
           span {
             @apply text-xs font-normal;
+          }
+        }
+
+        .draft-mark {
+          @apply w-auto h-auto text-xs font-semibold px-2 py-1.5 bg-zinc-700 rounded-lg;
+        }
+      }
+
+      .options {
+        @apply order-2 flex-shrink-0 w-6 h-auto relative;
+        @apply sm:order-none;
+
+        .icon-button {
+          @apply w-6 h-6 rounded-md;
+        }
+
+        .comment-options {
+          @apply absolute top-full right-0 mt-1;
+          @apply w-48 h-auto rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 mt-1;
+          transform-origin: top;
+
+          .option {
+            @apply w-full h-auto px-2 py-1.5 text-xs text-left flex items-center space-x-2 duration-200 hover:bg-zinc-700;
+
+            .option-icon {
+              @apply w-4 h-4 text-zinc-400;
+            }
+
+            &.destructive {
+              @apply text-red-600;
+
+              .option-icon {
+                @apply text-red-600;
+              }
+            }
+          }
+
+          .option:disabled {
+            @apply pointer-events-none opacity-50;
           }
         }
       }
@@ -265,7 +385,7 @@ onMounted(() => {
       }
       .author {
         @apply w-auto h-auto flex items-center space-x-2 rounded-full duration-150 pr-2;
-        @apply hover:bg-zinc-800 hover:text-white;
+        @apply hover:bg-zinc-800;
 
         .author_image {
           @apply w-8 h-8 bg-zinc-800 rounded-full flex-shrink-0 overflow-hidden;
@@ -273,6 +393,10 @@ onMounted(() => {
 
         .author_name {
           @apply text-xs font-bold text-left whitespace-nowrap;
+        }
+
+        &.disabled {
+          @apply hover:bg-transparent cursor-default;
         }
       }
     }

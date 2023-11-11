@@ -211,6 +211,7 @@ const loadPosts = async () => {
       pageStatus.value = 'loaded';
     }
   } catch (error) {
+    console.error(error);
     pageStatus.value = 'error';
   }
 };
@@ -239,10 +240,8 @@ const goToLastPage = () => {
   loadPosts();
 };
 
-const clearAndRefreshPage = async () => {
+const refreshPage = async () => {
   pageStatus.value = 'loading';
-  clearFilters();
-  currentPage.value = 0;
   loadPosts();
 };
 
@@ -307,7 +306,7 @@ watch(() => route.query, () => {
               <button class="text-button text-button__medium text-button__primary" @click="clearFilters()">
                 <span>Wyczyść filtry</span>
               </button>
-              <button class="text-button text-button__medium text-button__secondary" @click="clearAndRefreshPage()">
+              <button class="text-button text-button__medium text-button__secondary" @click="refreshPage()">
                 <span>Odśwież</span>
               </button>
             </div>

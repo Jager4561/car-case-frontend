@@ -1,10 +1,16 @@
 import { Subject } from "rxjs";
 
-const popupSubject = new Subject<string | null>();
+const popupSubject = new Subject<{
+  name: string;
+  options?: any;
+} | null>();
 
 export const usePopups = () => {
-  const showPopup = (name: string) => {
-    popupSubject.next(name);
+  const showPopup = (name: string, options?: any) => {
+    popupSubject.next({
+      name,
+      options
+    });
   }
 
   const hidePopup = () => {

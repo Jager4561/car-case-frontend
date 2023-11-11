@@ -47,7 +47,7 @@ export const useAccount = () => {
     try {
       const result = await requestAccountUpdate({
         name: username,
-      });
+      }) as Account;
       account.value!.name = result.name;
       return result;
     } catch (error) {
@@ -60,13 +60,27 @@ export const useAccount = () => {
     new_password: string;
   }) => {
     try {
-      const result = await requestPasswordChange(payload);
+      const result = await requestPasswordChange(payload) as Account;
       account.value!.last_password_change = result.last_password_change;
       return result;
     } catch (error) {
       throw error;
     }
   };
+
+  const deleteAccount = async () => {
+    try {
+      const result = await requestAccountDeletion();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const resetState = () => {
+    account.value = null;
+    fetchPending.value = false;
+  }
 
   return {
     account,
@@ -76,5 +90,7 @@ export const useAccount = () => {
     removeAvatar,
     updateUsername,
     changePassword,
+    resetState,
+    deleteAccount
   };
 };

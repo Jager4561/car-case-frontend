@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArchiveBoxXMarkIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/vue/24/solid';
+import { ArchiveBoxXMarkIcon, InformationCircleIcon, XMarkIcon, EllipsisVerticalIcon, PencilIcon, TrashIcon, FlagIcon } from '@heroicons/vue/24/solid';
 import { IconFileDescription } from '@tabler/icons-vue';
 import TextSection from '@/components/Post/TextSection.vue';
 import ImageSection from '@/components/Post/ImageSection.vue';
@@ -9,9 +9,15 @@ const mobileView = ref<'content' | 'about' | 'info'>('content');
 const isDesktop = ref(false);
 
 const route = useRoute();
+const { account } = useAccount();
 const { postsWithContent, fetchPost } = usePostsState();
+const { showPopup } = usePopups();
 const pageStatus = ref<'loading' | 'error' | 'success'>('loading');
 const post = ref<Post | null>(null);
+
+const optionsVisible = ref(false);
+const optionsButton = ref<HTMLButtonElement | null>(null);
+const optionsList = ref<HTMLDivElement | null>(null);
 
 const openPostInfo = () => {
   mobileView.value = 'about';
@@ -29,6 +35,20 @@ const closeInfo = () => {
   mobileView.value = 'content';
 };
 
+const toggleOptions = () => {
+  optionsVisible.value = !optionsVisible.value;
+};
+
+const clickedOutside = (event: MouseEvent) => {
+  if(!optionsVisible.value) return;
+  const isTarget = optionsButton.value === event.target;
+  const clickedInside = optionsButton.value?.contains(event.target as Node);
+
+  if(!isTarget && !clickedInside) {
+    optionsVisible.value = false;
+  }
+}
+
 const sections = computed(() => {
   if (post.value && post.value.content) {
     return post.value.content.map((section: any) => {
@@ -36,12 +56,12 @@ const sections = computed(() => {
         case 'text':
           return {
             component: TextSection,
-            data: section.content,
+            data: section,
           };
         case 'image': {
           return {
             component: ImageSection,
-            data: section.content,
+            data: section,
           };
         }
       }
@@ -83,19 +103,40 @@ const refreshPage = () => {
   loadPost();
 };
 
+const editPost = () => {
+  navigateTo('/edytor/' + post.value?.id);
+};
+
+const reportPost = () => {
+  showPopup('reportPost', {
+    postId: post.value?.id,
+  });
+};
+
+const removePost = () => {
+  showPopup('deletePostConfirm', {
+    postId: post.value?.id,
+  });
+};
+
 const onResize = () => {
   isDesktop.value = window.innerWidth >= 1024;
 };
 
 onMounted(() => {
   loadPost();
+  document.addEventListener('click', clickedOutside);
   window.addEventListener('resize', onResize);
   onResize();
 });
 
-watch(postsWithContent, () => {
-  loadPost();
-}, { deep: true });
+watch(
+  postsWithContent,
+  () => {
+    loadPost();
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -123,7 +164,27 @@ watch(postsWithContent, () => {
               {{ post.title }}
             </div>
             <div class="actions">
-              <button class="text-button text-button__secondary text-button__small">Zgłoś instrukcję</button>
+              <div class="options">
+                <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
+                  <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
+                </button>
+                <Transition name="list">
+                  <div v-show="optionsVisible" ref="optionsList" class="comment-options">
+                    <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" class="option" @click="editPost()">
+                      <PencilIcon class="option-icon"></PencilIcon>
+                      <span>Edytuj</span>
+                    </button>
+                    <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" class="option destructive" @click="removePost()">
+                      <TrashIcon class="option-icon"></TrashIcon>
+                      <span>Usuń</span>
+                    </button>
+                    <button v-if="!isLoggedIn || !account || !post.author || post.author.id != account.id" class="option" @click="reportPost()">
+                      <FlagIcon class="option-icon"></FlagIcon>
+                      <span>Zgłoś</span>
+                    </button>
+                  </div>
+                </Transition>
+              </div>
             </div>
           </div>
           <div class="post-content__abstract">
@@ -304,10 +365,55 @@ watch(postsWithContent, () => {
       @apply w-full h-auto;
 
       &__header {
-        @apply w-full h-auto flex items-center justify-between mb-3;
+        @apply w-full h-auto flex flex-col items-end justify-center mb-3;
+        @apply md:flex-row md:items-center md:justify-between;
+        @apply lg:flex-col lg:items-end lg:justify-center;
+        @apply xl:flex-row xl:items-center xl:justify-between;
 
         .title {
-          @apply text-xl font-bold;
+          @apply w-full text-xl font-bold mb-1;
+          @apply md:w-auto md:mb-0;
+          @apply lg:w-full lg:mb-1;
+          @apply xl:w-auto xl:mb-0;
+        }
+
+        .options {
+          @apply order-2 flex-shrink-0 w-6 h-auto relative;
+          @apply sm:order-none;
+
+          .icon-button {
+            @apply w-8 h-8 rounded-md;
+
+            .button-icon {
+              @apply w-5 h-5;
+            }
+          }
+
+          .comment-options {
+            @apply absolute top-full right-0 mt-1;
+            @apply w-56 h-auto rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 mt-1;
+            transform-origin: top;
+
+            .option {
+              @apply w-full h-auto p-2 text-xs text-left flex items-center space-x-2 duration-200 hover:bg-zinc-700;
+
+              .option-icon {
+                @apply w-5 h-5 text-zinc-400;
+              }
+
+              &.destructive {
+                @apply text-red-600;
+
+                .option-icon {
+                  @apply text-red-600;
+                }
+              }
+            }
+
+            .option:disabled {
+              @apply pointer-events-none opacity-50;
+            }
+          }
         }
       }
 

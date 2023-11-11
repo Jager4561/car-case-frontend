@@ -16,10 +16,15 @@ export const useModelsState = () => {
     return data;
   }
 
+  const resetState = () => {
+    models.value = null;
+    fetchPending.value = false;
+  }
 
   return {
     models,
     fetchPending,
     fetchModels,
+    resetState
   }
 }

@@ -101,6 +101,10 @@
     @apply lg:hover:bg-zinc-700 lg:hover:text-white;
   }
 
+  &__secondary:disabled {
+    @apply text-zinc-600 pointer-events-none;
+  }
+
   &__small {
     @apply w-8 h-8;
 
@@ -127,13 +131,13 @@
 }
 
 .text-button {
-  @apply w-auto rounded-lg flex items-center justify-center space-x-2 relative duration-200;
+  @apply w-auto rounded-lg flex items-center justify-center space-x-2 relative duration-200 whitespace-nowrap;
 
   &__primary {
     @apply bg-darkCyan text-white;
     @apply hover:filter hover:brightness-110;
 
-    &:disabled {
+    &:disabled, &.disabled {
       @apply text-zinc-200 filter brightness-50 pointer-events-none;
     }
   }
@@ -142,7 +146,7 @@
     @apply bg-transparent text-white bg-zinc-700;
     @apply lg:hover:bg-zinc-600;
 
-    &:disabled {
+    &:disabled, &.disabled {
       @apply text-zinc-400 pointer-events-none;
     }
   }
@@ -196,6 +200,14 @@
     input, .inputlike {
       @apply w-full h-10 bg-zinc-800 rounded-md px-3 text-sm font-semibold relative;
       @apply focus:outline-none focus:ring-0;
+    }
+
+    textarea {
+      @apply w-full h-24 bg-zinc-800 rounded-md p-3 text-sm font-semibold relative resize-none overflow-y-auto;
+      @apply focus:outline-none focus:ring-0;
+    }
+    textarea::placeholder {
+      @apply text-zinc-500;
     }
 
     .inputlike {

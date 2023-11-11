@@ -88,7 +88,7 @@ h6 {
 }
 
 .loader {
-  @apply w-auto h-auto inline-flex items-center justify-center space-x-1.5 ml-2;
+  @apply w-auto h-auto inline-flex items-center justify-center space-x-1.5;
 
   div {
     @apply w-2 h-2 rounded-full bg-white;

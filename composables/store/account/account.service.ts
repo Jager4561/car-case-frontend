@@ -39,6 +39,11 @@ export const useAccountService = () => {
     return response;
   }
 
+  const requestAccountDeletion = async () => {
+    const response = await performRequest<Account>('DELETE', '/account');
+    return response;
+  }
+
   return {
     requestAccountData,
     requestAvatarChange,

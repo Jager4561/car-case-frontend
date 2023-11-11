@@ -48,3 +48,13 @@ export interface PostsFilterRules {
 export interface PostsFiltersPayload extends PostsFilterRules {
   page: number;
 }
+
+export interface MyPostsFilterRules {
+  search: string | null;
+  sort: string;
+  dateFrom: Date | null;
+  dateTo: Date | null;
+  brand: number | null;
+  model: number | null;
+  generation: number | null;
+}

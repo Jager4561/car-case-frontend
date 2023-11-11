@@ -88,7 +88,7 @@ watch(models, () => {
     <div class="bottom_part">
       <div class="advert">
         <NuxtImg src="img/up_logo.jpg" alt=""></NuxtImg>
-        <p>Projekt stworzony na potrzeby pracy inżynierskiej na Instytucie Nauk Technicznych Uniwersytetu Pedagogicznego im. Komisji Edukacji Narodowej w Krakowie.</p>
+        <p>Projekt stworzony na potrzeby pracy inżynierskiej na Instytucie Nauk Technicznych Uniwersytetu Komisji Edukacji Narodowej w Krakowie.</p>
       </div>
       <div class="copyright">Copyright &copy; 2023 - Wojciech Cyrwus</div>
     </div>

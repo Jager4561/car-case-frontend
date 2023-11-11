@@ -24,7 +24,6 @@ const filters = reactive<PostsFilterRules>({
   brand: null,
   model: null,
   generation: null,
-  author: null,
 });
 
 const sorting = ref([
@@ -88,8 +87,6 @@ const generations = ref<
   },
 ]);
 
-const accounts = ref<AuthorFilter[]>([]);
-
 const onFiltersChange = () => {
   if(filtersData.value != null) {
     if(filters.brand != null && filters.brand != 0) {
@@ -122,7 +119,6 @@ const clearFilters = () => {
   filters.brand = null;
   filters.model = null;
   filters.generation = null;
-  filters.author = null;
   onFiltersChange();
 };
 
@@ -132,7 +128,6 @@ const setUpFilters = () => {
     value: brand.id,
     label: brand.name,
   }));
-  accounts.value = filtersData.value.authors;
 
   if(props.filters == null) return;
   if(props.filters.search) {
@@ -146,9 +141,6 @@ const setUpFilters = () => {
   }
   if(props.filters.dateTo) {
     filters.dateTo = props.filters.dateTo;
-  }
-  if(props.filters.author) {
-    filters.author = props.filters.author;
   }
   if(props.filters.generation) {
     let wantedBrand = null;
@@ -294,38 +286,32 @@ watch(props.filters, () => {
         </div>
         <div class="filters__single">
           <div class="field">
-            <label class="field__label">Sortowanie</label>
+            <label for="" class="field__label">Sortowanie</label>
             <InputSelect v-model="filters.sort" placeholder="Typ" :clearVisible="false" :options="sorting" />
           </div>
         </div>
         <div class="filters__single">
           <div class="field">
-            <label class="field__label">Data opublikowanie (od)</label>
+            <label for="" class="field__label">Data opublikowanie (od)</label>
             <InputDate v-model="filters.dateFrom" />
           </div>
         </div>
         <div class="filters__single">
           <div class="field">
-            <label class="field__label">Data opublikowanie (do)</label>
+            <label for="" class="field__label">Data opublikowanie (do)</label>
             <InputDate v-model="filters.dateTo" />
           </div>
         </div>
         <div class="filters__group">
           <div class="field">
-            <label class="field__label">Pojazd</label>
-            <InputSelect v-model="filters.brand" :disabled="brands.length === 0" placeholder="Marka pojazdu" :options="brands" />
+            <label for="" class="field__label">Pojazd</label>
+            <InputSelect v-model="filters.brand" placeholder="Marka pojazdu" :options="brands" />
           </div>
           <div v-if="filters.brand != null && filters.brand != 0" class="field">
             <InputSelect v-model="filters.model" placeholder="Model pojazdu" :options="models" />
           </div>
           <div v-if="filters.model != null && filters.brand != 0" class="field">
             <InputSelect v-model="filters.generation" placeholder="Generacja pojazdu" :options="generations" />
-          </div>
-        </div>
-        <div v-if="accounts && accounts.length > 0" class="filters__single">
-          <div class="field">
-            <label class="field__label">Autor</label>
-            <InputSearchAccount v-model="filters.author" :accounts="accounts" />
           </div>
         </div>
       </div>

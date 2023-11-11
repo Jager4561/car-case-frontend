@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { FlagIcon, HandThumbDownIcon, HandThumbUpIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, PencilIcon } from '@heroicons/vue/24/solid';
+import { FlagIcon, HandThumbDownIcon, HandThumbUpIcon, ArrowUturnLeftIcon, EllipsisVerticalIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/solid';
 
-const { comment } = defineProps<{
+const props = defineProps<{
   comment: PostComment;
 }>();
 const emit = defineEmits(['onReply']);
 
 const { isLoggedIn } = useAuthState();
+const { showPopup } = usePopups();
+const { editComment, deleteComment, rateComment } = usePostsState();
+const { createErrorToast, createSuccessToast } = useToasts();
 
 const optionsVisible = ref(false);
 const optionsButton = ref<HTMLButtonElement | null>(null);
 const optionsList = ref<HTMLDivElement | null>(null);
+
+const editActive = ref(false);
+const editCommentValue = ref('');
+const commentBlocked = ref(false);
 
 const toggleOptions = () => {
   optionsVisible.value = !optionsVisible.value;
@@ -27,6 +34,85 @@ const clickedOutside = (event: MouseEvent) => {
   }
 }
 
+const likeComment = () => {
+  if (commentBlocked.value) return;
+  commentBlocked.value = true;
+  if(props.comment.isLiked) {
+    rateComment(props.comment.id, null);
+  } else {
+    rateComment(props.comment.id, true);
+  }
+  commentBlocked.value = false;
+};
+
+const dislikeComment = () => {
+  if (commentBlocked.value) return;
+  commentBlocked.value = true;
+  if(props.comment.isDisliked) {
+    rateComment(props.comment.id, null);
+  } else {
+    rateComment(props.comment.id, false);
+  }
+  commentBlocked.value = false;
+}
+
+const replyToComment = () => {
+  emit('onReply');
+};
+
+const invokeEdit = () => {
+  editCommentValue.value = props.comment.content;
+  editActive.value = true;
+};
+
+const closeEdit = () => {
+  editActive.value = false;
+};
+
+const submitEdit = async () => {
+  if (commentBlocked.value) return;
+  commentBlocked.value = true;
+  if(editCommentValue.value.length === 0) {
+    createErrorToast('Edycja komentarza', 'Komentarz nie może być pusty.');
+    commentBlocked.value = false;
+    return;
+  }
+  if(editCommentValue.value.length > 1000) {
+    createErrorToast('Edycja komentarza', 'Komentarz nie może być dłuższy niż 1000 znaków.');
+    commentBlocked.value = false;
+    return;
+  }
+  commentBlocked.value = true;
+  try {
+    await editComment(props.comment.id, editCommentValue.value);
+    createSuccessToast('Edycja komentarza', 'Komentarz został zedytowany.');
+  } catch (error) {
+    console.error(error);
+    createErrorToast('Edycja komentarza', 'Nie udało się zedytować komentarza. Spróbuj ponownie później.');
+  } finally {
+    commentBlocked.value = false;
+    closeEdit();
+  }
+};
+
+const removeComment = async () => {
+  if (commentBlocked.value) return;
+  commentBlocked.value = true;
+  try {
+    await deleteComment(props.comment.id);
+    createSuccessToast('Usuwanie komentarza', 'Komentarz został usunięty.');
+  } catch (error) {
+    console.error(error);
+    createErrorToast('Usuwanie komentarza', 'Nie udało się usunąć komentarza. Spróbuj ponownie później.');
+  } finally {
+    commentBlocked.value = false;
+  }
+};
+
+const reportComment = () => {
+  showPopup('reportComment', { commentId: props.comment.id });
+}
+
 onMounted(() => {
   document.addEventListener('click', clickedOutside);
 });
@@ -34,59 +120,92 @@ onMounted(() => {
 
 <template>
   <div class="reply">
-    <div class="reply__avatar">
-      <div class="avatar">
-          <Image :src="comment.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
+      <div class="reply__avatar">
+        <div v-if="comment.status === 'published'" class="avatar">
+          <Image :src="comment.author && comment.author.avatar" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
         </div>
-      <ArrowUturnLeftIcon class="reply-icon"></ArrowUturnLeftIcon>
-    </div>
-    <div class="reply__content">
-      <div class="header">
-        <div class="info">
-          <div class="name">{{ comment.author.name }}</div>
-            <div class="date">{{ dayjs(comment.date_created).fromNow() }} {{ comment.date_modified ? '(edytowany)' : '' }}</div>
+        <div v-else class="avatar">
+          <Image :src="null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5"></Image>
         </div>
-        <div class="options">
+      </div>
+      <div class="reply__content">
+        <div v-if="comment.status === 'published'" class="header">
+          <div class="info">
+            <div class="name">{{ comment.author.name }}</div>
+            <div class="date">{{ dayjs(comment.date_created).fromNow() }} {{ comment.date_updated ? '(edytowany)' : '' }}</div>
+          </div>
+          <div class="options">
             <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
-              <EllipsisHorizontalIcon class="button-icon"></EllipsisHorizontalIcon>
+              <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
             </button>
             <Transition name="list">
               <div v-show="optionsVisible" ref="optionsList" class="comment-options">
-                <button v-if="isLoggedIn && comment.isUserComment" class="option">
+                <button v-if="isLoggedIn && comment.isUserComment" :disabled="commentBlocked" class="option" @click="invokeEdit()">
                   <PencilIcon class="option-icon"></PencilIcon>
                   <span>Edytuj</span>
                 </button>
-                <button v-if="isLoggedIn && comment.isUserComment" class="option destructive">
+                <button v-if="isLoggedIn && comment.isUserComment" :disabled="commentBlocked" class="option destructive" @click="removeComment()">
                   <TrashIcon class="option-icon"></TrashIcon>
                   <span>Usuń</span>
                 </button>
-                <button v-if="!isLoggedIn || !comment.isUserComment" class="option">
+                <button v-if="!isLoggedIn || !comment.isUserComment" :disabled="commentBlocked" class="option" @click="reportComment()"> 
                   <FlagIcon class="option-icon"></FlagIcon>
                   <span>Zgłoś</span>
                 </button>
               </div>
             </Transition>
           </div>
-      </div>
-      <div class="content">{{ comment.content }}</div>
-      <div class="options">
-        <div class="start">
-          <button :disabled="!isLoggedIn" class="text-button text-button__thertiary text-button__small" :class="{'like-active': comment.isLiked}">
-              <HandThumbUpIcon class="button-icon" />
-              <span>{{ comment.likes }}</span>
-            </button>
-            <button :disabled="!isLoggedIn" class="text-button text-button__thertiary text-button__small" :class="{'dislike-active': comment.isDisliked}">
-              <HandThumbDownIcon class="button-icon" />
-              <span>{{ comment.dislikes }}</span>
-            </button>
-          <button class="text-button text-button__thertiary text-button__small" @click="emit('onReply', null);">
-            <ArrowUturnLeftIcon class="button-icon" />
-            <span>Odpowiedz</span>
-          </button>
         </div>
+        <div v-if="comment.status === 'deleted'" class="header font-bold">Komentarz usunięty</div>
+        <div v-if="comment.status === 'blocked'" class="header font-bold">Komentarz zablokowany</div>
+        <template v-if="!editActive">
+          <div v-if="comment.status === 'published'" class="content">{{ comment.content }}</div>
+          <div v-if="comment.status === 'deleted'" class="content removed">Ten komentarz został usunięty przez jego autora.</div>
+          <div v-if="comment.status === 'blocked'" class="content removed">Ten komentarz został usunięty przez moderatora.</div>
+          <div class="options">
+            <div class="start">
+              <button
+                v-if="comment.status === 'published'"
+                :disabled="!isLoggedIn || commentBlocked"
+                class="text-button text-button__thertiary text-button__small"
+                :class="{ 'like-active': comment.isLiked, 'force-disable': commentBlocked }"
+                @click="likeComment()"
+              >
+                <HandThumbUpIcon class="button-icon" />
+                <span>{{ comment.likes }}</span>
+              </button>
+              <button
+                v-if="comment.status === 'published'"
+                :disabled="!isLoggedIn || commentBlocked"
+                class="text-button text-button__thertiary text-button__small"
+                :class="{ 'dislike-active': comment.isDisliked, 'force-disable': commentBlocked }"
+                @click="dislikeComment()"
+              >
+                <HandThumbDownIcon class="button-icon" />
+                <span>{{ comment.dislikes }}</span>
+              </button>
+              <button :disabled="commentBlocked" class="text-button text-button__thertiary text-button__small" :class="{ 'force-disable': commentBlocked }" @click="replyToComment()">
+                <ArrowUturnLeftIcon class="button-icon" />
+                <span>Odpowiedz</span>
+              </button>
+            </div>
+          </div>
+        </template>
+        <template v-if="editActive">
+          <div class="editable-content">
+            <textarea v-model="editCommentValue"></textarea>
+          </div>
+          <div class="edit-options">
+            <button :disabled="commentBlocked" class="text-button text-button__primary text-button__small" :class="{ 'force-disable': commentBlocked }" @click="submitEdit()">
+              <span>Zapisz</span>
+            </button>
+            <button :disabled="commentBlocked" class="text-button text-button__secondary text-button__small" :class="{ 'force-disable': commentBlocked }" @click="closeEdit()">
+              <span>Anuluj</span>
+            </button>
+          </div>
+        </template>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped lang="scss">
@@ -97,11 +216,11 @@ onMounted(() => {
     @apply w-auto h-auto flex-shrink-0 flex flex-col items-center space-y-2;
 
     .avatar {
-      @apply w-10 h-10 rounded-full bg-zinc-900 overflow-hidden;
+      @apply w-10 h-10 bg-zinc-900 rounded-full overflow-hidden;
     }
 
     .reply-icon {
-      @apply w-4 h-4 text-zinc-400;
+      @apply w-6 h-6 text-zinc-400;
     }
   }
 
@@ -150,12 +269,20 @@ onMounted(() => {
               }
             }
           }
+
+          .option:disabled {
+            @apply pointer-events-none opacity-50;
+          }
         }
       }
     }
 
     .content {
       @apply w-full h-auto text-xs mb-2;
+
+      &.removed {
+        @apply font-light italic;
+      }
     }
 
     .options {
@@ -174,12 +301,30 @@ onMounted(() => {
       }
 
       .like-active {
-        @apply bg-green-600 text-white;
+        @apply text-green-600;
+        @apply hover:text-green-400;
       }
 
       .dislike-active {
-        @apply bg-red-600 text-white;
+        @apply text-red-600;
+        @apply hover:text-red-400;
       }
+
+      .force-disable {
+        @apply opacity-50;
+      }
+    }
+
+    .editable-content {
+      @apply w-full h-auto relative;
+
+      textarea {
+        @apply w-full h-16 bg-zinc-900 border border-zinc-700 rounded-md text-xs resize-none overflow-y-auto p-2;
+      }
+    }
+
+    .edit-options {
+      @apply w-full h-auto flex items-center justify-end space-x-2;
     }
   }
 }

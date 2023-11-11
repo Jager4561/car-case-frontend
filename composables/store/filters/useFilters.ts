@@ -18,9 +18,15 @@ export const useFilters = () => {
     return data;
   }
 
+  const resetState = () => {
+    filtersData.value = null;
+    fetchPending.value = false;
+  }
+
   return {
     filtersData,
     fetchPending,
-    fetchFiltersData
+    fetchFiltersData,
+    resetState
   }
 }

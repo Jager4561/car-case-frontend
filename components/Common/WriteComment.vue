@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 
+const { createWarningToast } = useToasts();
+const { addComment } = usePostsState();
+const { account } = useAccount();
 const props = withDefaults(
   defineProps<{
     postId: number,
-    parentId?: number,
+    parent?: number,
     closeActive?: boolean,
   }>(),
   {
@@ -12,40 +15,67 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits(['closeClicked']);
-
+const isFormPending = ref(false);
 const comment = ref('');
 
+const addNewComment = async () => {
+  if(isFormPending.value) return;
+  if(comment.value.length === 0) {
+    createWarningToast('Dodawanie komentarza', 'Komentarz nie może być pusty.');
+    return;
+  }
+  if(comment.value.length > 1000) {
+    createWarningToast('Dodawanie komentarza', 'Komentarz nie może być dłuższy niż 1000 znaków.');
+    return;
+  }
+  isFormPending.value = true;
+  try {
+    await addComment(props.postId, comment.value, props.parent);
+    comment.value = '';
+  } catch (error) {
+    createWarningToast('Dodawanie komentarza', 'Wystąpił błąd podczas dodawania komentarza.');
+  } finally {
+    isFormPending.value = false;
+  }
+}
+
 const closeField = () => {
+  if(isFormPending.value) return;
   emit('closeClicked');
 };
-
-onMounted(() => {
-  console.log(props);
-})
 </script>
 
 <template>
-  <div class="write-comment">
+  <form class="write-comment" @submit.prevent="addNewComment()">
     <div class="write-comment__top">
       <div class="write-comment__avatar">
-        <NuxtImg class="avatar" src="img/revenant.png"></NuxtImg>
+        <div class="avatar">
+          <Image :src="account != null ? account.avatar : null" alt="user" altClass="w-5 h-5 text-zinc-500" loaderClass="w-1 h-1 rounded-full bg-white mr-0.5" />
+        </div>
       </div>
       <div class="write-comment__content">
         <textarea v-model="comment"></textarea>
       </div>
     </div>
     <div class="write-comment__actions">
-      <div class="char-limit" :class="{'alert': comment.length > 500}">{{ comment.length }}/500</div>
-      <button v-if="props.closeActive" class="text-button text-button__secondary text-button__small" @click="closeField()">
+      <div class="char-limit" :class="{'alert': comment.length > 1000}">{{ comment.length }}/1000</div>
+      <button v-if="props.closeActive" type="button" class="text-button text-button__secondary text-button__small" @click="closeField()">
         <span>Anuluj</span>
         <XMarkIcon class="button-icon"></XMarkIcon>
       </button>
-      <button class="text-button text-button__primary text-button__small">
-        <span>Dodaj</span>
-        <PaperAirplaneIcon class="button-icon"></PaperAirplaneIcon>
+      <button type="submit" class="text-button text-button__primary text-button__small add-button">
+        <template v-if="!isFormPending">
+          <span>Dodaj</span>
+          <PaperAirplaneIcon class="button-icon"></PaperAirplaneIcon>
+        </template>
+        <div v-if="isFormPending" class="loader">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
       </button>
     </div>
-  </div>
+  </form>
 </template>
 
 <style scoped lang="scss">
@@ -60,7 +90,7 @@ onMounted(() => {
     @apply w-auto h-auto flex-shrink-0 flex flex-col items-center space-y-2;
 
     .avatar {
-      @apply w-10 h-10 object-center object-cover rounded-full;
+      @apply w-10 h-10 rounded-full overflow-hidden bg-zinc-900;
     }
   }
 
@@ -88,6 +118,17 @@ onMounted(() => {
 
       &.alert {
         @apply text-red-500;
+      }
+    }
+
+    .add-button {
+      @apply min-w-[5rem];
+
+      .loader {
+        @apply space-x-1;
+        .dot {
+          @apply w-1.5 h-1.5;
+        }
       }
     }
   }

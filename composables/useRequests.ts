@@ -9,14 +9,10 @@ export const useRequests = () => {
   const performRequest = async <T>(method: string, route: string, data?: any, isFormData?: boolean): Promise<T | ReqError> => {
     const sessionState = useAuthState();
     const session = sessionState.sessionData.value;
-    if(!session) {
-      throw {
-        type: 'no_session',
-        message: 'No session found',
-      };
-    }
     const headers = new Headers();
-    headers.append('Authorization', `Bearer ${session.access_token}`);
+    if(session) {
+      headers.append('Authorization', `Bearer ${session.access_token}`);
+    }
     if(!isFormData) {
       headers.append('Content-Type', 'application/json');
     }
@@ -25,7 +21,7 @@ export const useRequests = () => {
       headers: headers,
       body: isFormData ? data : JSON.stringify(data), 
     });
-    if(response.status === 401) {
+    if(response.status === 401 && session) {
       const refresh = await fetch(`${runtimeConfig.public.apiUrl}/auth/refresh`, {
         method: 'POST',
         headers: {
@@ -37,7 +33,7 @@ export const useRequests = () => {
       });
       if(refresh.status === 200) {
         sessionState.saveSession(await refresh.json());
-        return await performRequest(method, route, data);
+        return await performRequest(method, route, data, isFormData);
       } else if (refresh.status === 401) {
         sessionState.deleteSession();
         throw {

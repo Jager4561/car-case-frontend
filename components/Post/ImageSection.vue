@@ -1,12 +1,15 @@
 <script setup lang="ts">
 const props = defineProps<{
-  data: string;
+  data: {
+    type: string;
+    content: string;
+  };
 }>();
 </script>
 
 <template>
   <div class="image-section">
-    <Image :src="props.data" altClass="w-16 h-16 text-zinc-500" mode="contain"></Image>
+    <Image :src="props.data.content" altClass="w-16 h-16 text-zinc-500" mode="contain"></Image>
   </div>
 </template>
 

@@ -31,6 +31,10 @@ const submitForm = async () => {
     createWarningToast('Uwaga!', 'Popraw zaznaczone pola w formularzu.');
     return;
   }
+  if(inputs.username === props.account.name) {
+    createWarningToast('Zmiana nazwy użytkownika', 'Podana nazwa użytkownika jest taka sama jak obecna. Wybierz inną nazwę użytkownika.');
+    return;
+  }
   isFormPending.value = true;
   try {
     await updateUsername(inputs.username);
