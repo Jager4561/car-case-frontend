@@ -6,7 +6,9 @@ const componentStatus = ref<'loading' | 'error' | 'loaded' | 'empty'>('loading')
 
 const modelsToDisplay = computed(() => {
   if (models.value) {
-    return models.value.slice(0, 3);
+    return models.value.sort((a, b) => {
+      return b.posts_count - a.posts_count;
+    }).slice(0, 3);
   }
   return [];
 });
