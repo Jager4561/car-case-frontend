@@ -8,6 +8,8 @@ const props = defineProps<{
 }>();
 
 const availableSizes = ref([12, 16, 20, 24, 28, 32, 36, 40]);
+
+/* Withor pre */
 </script>
 
 <template>
