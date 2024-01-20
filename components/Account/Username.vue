@@ -64,7 +64,7 @@ onMounted(() => {
   <form class="username" @submit.prevent="submitForm()">
     <div class="username-input">
       <div class="input_container">
-        <label for="username">Adres e-mail</label>
+        <label for="username">Nazwa użytkownika</label>
         <input v-model="form.username.$model" type="username" id="username" name="username" placeholder="Jan Kowalski" />
         <div class="error" :class="{ visible: form.username.$error && form.$dirty }">
           <div class="error__container">

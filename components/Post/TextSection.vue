@@ -1,15 +1,12 @@
 <script setup lang="ts">
-const props = defineProps<{
-  data: {
-    type: string;
-    size: number;
-    content: string;
-  };
-}>();
-
-const availableSizes = ref([12, 16, 20, 24, 28, 32, 36, 40]);
-
-/* Withor pre */
+  const props = defineProps<{
+    data: {
+      type: string;
+      size: number;
+      content: string;
+    };
+  }>();
+  const availableSizes = ref([12, 16, 20, 24, 28, 32, 36, 40]);
 </script>
 
 <template>
@@ -19,7 +16,7 @@ const availableSizes = ref([12, 16, 20, 24, 28, 32, 36, 40]);
 </template>
 
 <style scoped lang="scss">
-.text-section {
-  @apply w-full h-auto mb-6;
-}
+  .text-section {
+    @apply w-full h-auto mb-6;
+  }
 </style>

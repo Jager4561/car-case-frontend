@@ -89,7 +89,7 @@ watch(models, () => {
     </div>
     <div class="bottom_part">
       <div class="advert">
-        <NuxtImg src="img/up_logo.jpg" alt=""></NuxtImg>
+        <NuxtImg src="img/uken_logo.webp" alt="Uken logo"></NuxtImg>
         <p>Projekt stworzony na potrzeby pracy inżynierskiej na Instytucie Nauk Technicznych Uniwersytetu Komisji Edukacji Narodowej w Krakowie.</p>
       </div>
       <div class="copyright">Copyright &copy; 2023 - Wojciech Cyrwus</div>
