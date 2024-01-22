@@ -123,7 +123,7 @@ const onFormSubmit = async () => {
     </div>
     <div class="actions">
       <button class="text-button text-button__medium text-button__primary">
-        <span v-if="!isFormPending">Zmień nazwę</span>
+        <span v-if="!isFormPending">Zmień hasło</span>
         <div v-if="isFormPending" class="loader">
           <div class="dots"></div>
           <div class="dots"></div>

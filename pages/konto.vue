@@ -164,7 +164,7 @@ watch(account, () => {
             <div class="account-content__spacer"></div>
             <div class="account-content__header">
               <div class="title">Zmiana hasła</div>
-              <div class="description">Tutaj możesz zmienić swoje hasło. Jeśli zmieniłeś hasło w ciągu 24 godzin musisz odczekać 24 godziny zanim będziesz mógł zmienić hasło ponownie.</div>
+              <div class="description">Tutaj możesz zmienić swoje hasło. Jeśli zmieniłeś hasło w ciągu 24 godzin musisz odczekać zanim będziesz mógł zmienić hasło ponownie.</div>
             </div>
             <div class="account-content__spacer"></div>
             <AccountPassword :account="account" />
