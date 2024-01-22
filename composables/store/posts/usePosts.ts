@@ -53,6 +53,9 @@ export const usePostsState = () => {
       if (options?.author) {
         queryParams.append('author', options.author.toString());
       }
+      if (options?.page) {
+        queryParams.append('page', options.page.toString());
+      }
     }
 
     try {

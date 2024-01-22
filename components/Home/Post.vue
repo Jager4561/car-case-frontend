@@ -35,6 +35,9 @@ const commentsCount = computed(() => {
     if (comment.status !== 'published') return;
     size++;
   });
+  if(size == 0) {
+    commentsVisible.value = false;
+  }
   return size;
 });
 
