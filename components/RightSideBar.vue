@@ -3,6 +3,7 @@ import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 const { models, fetchPending, fetchModels } = useModelsState();
 
 const componentStatus = ref<'loading' | 'error' | 'loaded' | 'empty'>('loading');
+const currentYear = ref(new Date().getFullYear());
 
 const modelsToDisplay = computed(() => {
   if (models.value) {
@@ -92,7 +93,7 @@ watch(models, () => {
         <NuxtImg src="img/uken_logo.webp" alt="Uken logo"></NuxtImg>
         <p>Projekt stworzony na potrzeby pracy inżynierskiej na Instytucie Nauk Technicznych Uniwersytetu Komisji Edukacji Narodowej w Krakowie.</p>
       </div>
-      <div class="copyright">Copyright &copy; 2023 - Wojciech Cyrwus</div>
+      <div class="copyright">Copyright &copy; {{ currentYear }} - Wojciech Cyrwus</div>
     </div>
   </div>
 </template>

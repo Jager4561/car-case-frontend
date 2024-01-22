@@ -18,5 +18,6 @@
 <style scoped lang="scss">
   .text-section {
     @apply w-full h-auto mb-6;
+    white-space: pre-wrap;
   }
 </style>
