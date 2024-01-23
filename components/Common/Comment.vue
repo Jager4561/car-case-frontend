@@ -285,7 +285,7 @@ onMounted(() => {
         }
 
         .comment-options {
-          @apply absolute top-full right-0 mt-1;
+          @apply absolute top-full right-0 mt-1 z-10;
           @apply w-48 h-auto rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 mt-1;
           transform-origin: top;
 
