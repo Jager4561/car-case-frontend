@@ -190,7 +190,7 @@ watch(
               <HandThumbDownIcon class="icon" />
               <span class="value">{{ props.post.dislikes }}</span>
             </button>
-            <button class="icon_button" :disabled="props.post.comments.length === 0" @click="toggleComments()" :class="{ active: commentsVisible }">
+            <button class="icon_button" @click="toggleComments()" :class="{ active: commentsVisible }">
               <ChatBubbleLeftRightIcon class="icon" />
               <span class="value">{{ commentsCount }}</span>
             </button>
@@ -199,7 +199,10 @@ watch(
       </div>
     </div>
     <Transition name="fade">
-      <div v-if="commentsVisible && props.post.comments.length > 0" class="post__comments">
+      <div v-if="commentsVisible" class="post__comments">
+        <div v-if="props.post.comments.length === 0" class="no-comments">
+          Do tej instrukcji nie dodano jeszcze żadnych komentarzy.
+        </div>
         <CommonComment v-for="comment in commentsToDisplay" :comment="comment" :postId="props.post.id" />
         <div class="see-more-comments">
           <div class="login-note">
@@ -407,6 +410,10 @@ watch(
 
   &__comments {
     @apply w-full h-auto mt-2;
+
+    .no-comments {
+      @apply w-full h-auto text-xs text-center text-zinc-400 p-3;
+    }
 
     .see-more-comments {
       @apply w-full h-auto flex items-center justify-between mb-2;
