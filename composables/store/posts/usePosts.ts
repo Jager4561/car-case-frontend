@@ -23,6 +23,7 @@ export const usePostsState = () => {
   const postsMeta = useState<{
     page: number;
     total: number;
+    per_page: number;
   } | null>('postsMeta', () => null);
   const postsWithContent = useState<DetailedPost[]>(
     'postsWithContent',
@@ -67,6 +68,7 @@ export const usePostsState = () => {
       postsMeta.value = {
         page: options && options.page ? options.page : 0,
         total: response.meta.total,
+        per_page: response.meta.per_page,
       };
       return response;
     } catch (error) {
@@ -320,41 +322,31 @@ export const usePostsState = () => {
       return;
     }
     const editablePost = { ...wantedComment.post! };
+    let editableComment = null;
     if(wantedComment.childIndex !== -1) {
-      const editableComment = { ...editablePost.comments[wantedComment.index].children![wantedComment.childIndex] };
-      if(rating === true) {
-        editableComment.isLiked = true;
-        editableComment.likes += 1;
-        editableComment.dislikes = editableComment.isDisliked ? editableComment.dislikes - 1 : editableComment.dislikes;
-        editableComment.isDisliked = false;
-      } else if(rating === false) {
-        editableComment.isDisliked = true;
-        editableComment.dislikes += 1;
-        editableComment.likes = editableComment.isLiked ? editableComment.likes - 1 : editableComment.likes;
-        editableComment.isLiked = false;
-      } else {
-        editableComment.isLiked = false;
-        editableComment.isDisliked = false;
-        editableComment.likes = editableComment.likes - 1;
-      }
+      editableComment = { ...editablePost.comments[wantedComment.index].children![wantedComment.childIndex] };
+    } else {
+      editableComment = { ...editablePost.comments[wantedComment.index] };
+    }
+    if(rating === true) {
+      editableComment.isLiked = true;
+      editableComment.likes += 1;
+      editableComment.dislikes = editableComment.isDisliked ? editableComment.dislikes - 1 : editableComment.dislikes;
+      editableComment.isDisliked = false;
+    } else if(rating === false) {
+      editableComment.isDisliked = true;
+      editableComment.dislikes += 1;
+      editableComment.likes = editableComment.isLiked ? editableComment.likes - 1 : editableComment.likes;
+      editableComment.isLiked = false;
+    } else {
+      editableComment.likes = editableComment.isLiked ? editableComment.likes - 1 : editableComment.likes;
+      editableComment.dislikes = editableComment.isDisliked ? editableComment.dislikes - 1 : editableComment.dislikes;
+      editableComment.isLiked = false;
+      editableComment.isDisliked = false;
+    }
+    if(wantedComment.childIndex !== -1) {
       editablePost.comments[wantedComment.index].children![wantedComment.childIndex] = editableComment;
     } else {
-      const editableComment = { ...editablePost.comments[wantedComment.index] };
-      if(rating === true) {
-        editableComment.isLiked = true;
-        editableComment.likes += 1;
-        editableComment.dislikes = editableComment.isDisliked ? editableComment.dislikes - 1 : editableComment.dislikes;
-        editableComment.isDisliked = false;
-      } else if(rating === false) {
-        editableComment.isDisliked = true;
-        editableComment.dislikes += 1;
-        editableComment.likes = editableComment.isLiked ? editableComment.likes - 1 : editableComment.likes;
-        editableComment.isLiked = false;
-      } else {
-        editableComment.isLiked = false;
-        editableComment.isDisliked = false;
-        editableComment.likes = editableComment.likes - 1;
-      }
       editablePost.comments[wantedComment.index] = editableComment;
     }
     updatePosts(editablePost);

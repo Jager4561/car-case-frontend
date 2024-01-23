@@ -203,7 +203,7 @@ const loadPosts = async () => {
   try {
     await fetchPosts(filtersToSend);
     if (postsMeta.value) {
-      totalPages.value = Math.ceil(postsMeta.value.total / 5);
+      totalPages.value = Math.ceil(postsMeta.value.total / postsMeta.value.per_page);
     }
     if (posts.value && posts.value.length === 0) {
       pageStatus.value = 'empty';
