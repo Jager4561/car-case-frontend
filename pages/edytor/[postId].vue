@@ -273,11 +273,11 @@ const updateSection = (options: {
 
 const verifyFormContent = () => {
   if(postForm.title == null || postForm.title.length < 3) {
-    createWarningToast('Dodwanie instrukcji', 'Tytuł instrukcji musi zawierać co najmniej 3 znaki.');
+    createWarningToast('Dodawanie instrukcji', 'Tytuł instrukcji musi zawierać co najmniej 3 znaki.');
     return false;
   }
   if(postForm.abstract == null || postForm.abstract.length < 3) {
-    createWarningToast('Dodwanie instrukcji', 'Opis instrukcji musi zawierać co najmniej 3 znaki.');
+    createWarningToast('Dodawanie instrukcji', 'Opis instrukcji musi zawierać co najmniej 3 znaki.');
     return false;
   }
   if(
@@ -288,11 +288,11 @@ const verifyFormContent = () => {
     postForm.hull_type == null
   ) {
     mobileView.value = 'modelSelector';
-    createWarningToast('Dodwanie instrukcji', 'Musisz wybrać model pojazdu. Uzupełniaj pola dopóki nie pojawi się informacja o uzupełnieniu wzystkich danych.');
+    createWarningToast('Dodawanie instrukcji', 'Musisz wybrać model pojazdu. Uzupełniaj pola dopóki nie pojawi się informacja o uzupełnieniu wzystkich danych.');
     return false;
   }
   if(postForm.sections.length === 0) {
-    createWarningToast('Dodwanie instrukcji', 'Instrukcja musi zawierać co najmniej jedną sekcję.');
+    createWarningToast('Dodawanie instrukcji', 'Instrukcja musi zawierać co najmniej jedną sekcję.');
     return false;
   }
   return true;
