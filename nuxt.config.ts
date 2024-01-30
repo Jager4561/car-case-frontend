@@ -27,6 +27,12 @@ export default defineNuxtConfig({
       baseURL: process.env.ASSETS_URL + '/assets/'
     }
   },
+  nitro: {
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true,
+    },
+  },
   css: [
     '@/assets/css/main.scss',
     '@/assets/css/fonts.scss',

@@ -135,7 +135,7 @@ onMounted(() => {
             <div class="date">{{ dayjs(comment.date_created).fromNow() }} {{ comment.date_updated ? '(edytowany)' : '' }}</div>
           </div>
           <div class="options">
-            <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
+            <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" title="Opcje" @click="toggleOptions()">
               <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
             </button>
             <Transition name="list">
@@ -169,6 +169,7 @@ onMounted(() => {
                 :disabled="!isLoggedIn || commentBlocked"
                 class="text-button text-button__thertiary text-button__small"
                 :class="{ 'like-active': comment.isLiked, 'force-disable': commentBlocked }"
+                title="Lubię to"
                 @click="likeComment()"
               >
                 <HandThumbUpIcon class="button-icon" />
@@ -179,6 +180,7 @@ onMounted(() => {
                 :disabled="!isLoggedIn || commentBlocked"
                 class="text-button text-button__thertiary text-button__small"
                 :class="{ 'dislike-active': comment.isDisliked, 'force-disable': commentBlocked }"
+                title="Nie lubię tego"
                 @click="dislikeComment()"
               >
                 <HandThumbDownIcon class="button-icon" />

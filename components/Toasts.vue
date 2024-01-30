@@ -21,7 +21,7 @@ const { toasts, removeToast, startDisapearCounter, stopDisapearCounter } = useTo
             <p class="title">{{ toast.title }}</p>
             <p class="text">{{ toast.message }}</p>
           </div>
-          <button class="icon-button icon-button__medium icon-button__thertiary close-button" @click="removeToast(toast.index)">
+          <button class="icon-button icon-button__medium icon-button__thertiary close-button" title="Zamknij" @click="removeToast(toast.index)">
             <XMarkIcon class="icon-button__icon" />
           </button>
         </div>

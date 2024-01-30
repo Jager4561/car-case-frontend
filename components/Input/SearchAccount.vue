@@ -68,7 +68,7 @@ watch(() => props.modelValue, (value) => {
           </div>
           <span>{{ selectedAccount?.name }}</span>
         </div>
-        <button class="icon-button icon-button__secondary icon-button__small" @click="clearInput()">
+        <button class="icon-button icon-button__secondary icon-button__small" title="Wyczyść" @click="clearInput()">
           <XMarkIcon />
         </button>
       </div>

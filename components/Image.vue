@@ -89,6 +89,7 @@
           :src="(parsedSrc as string)"
           provider="directus"
           :class="props.mode === 'contain' ? 'contain' : ''"
+          :alt="props.alt"
         ></NuxtImg>
       </div>
       <div v-else class="error">

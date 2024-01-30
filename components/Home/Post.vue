@@ -130,7 +130,7 @@ watch(
           </div>
         </div>
         <div class="options">
-          <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
+          <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" title="Opcje" @click="toggleOptions()">
             <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
           </button>
           <Transition name="list">
@@ -190,7 +190,7 @@ watch(
               <HandThumbDownIcon class="icon" />
               <span class="value">{{ props.post.dislikes }}</span>
             </button>
-            <button class="icon_button" @click="toggleComments()" :class="{ active: commentsVisible }">
+            <button class="icon_button" @click="toggleComments()" title="Sekcja komentarzy" :class="{ active: commentsVisible }">
               <ChatBubbleLeftRightIcon class="icon" />
               <span class="value">{{ commentsCount }}</span>
             </button>

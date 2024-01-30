@@ -14,7 +14,7 @@ const currentYear = new Date().getFullYear();
       </p>
 		</div>
 		<div class="wallpaper">
-      <NuxtImg class="wallpaper-image" src="img/auth_wallpaper.jpg"></NuxtImg>
+      <NuxtImg class="wallpaper-image" src="img/auth_wallpaper.webp"></NuxtImg>
       <p class="copyright">
         Copyright &copy; {{ currentYear }} - Wojciech Cyrwus
       </p>

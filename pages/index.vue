@@ -278,19 +278,19 @@ watch(() => route.query, () => {
         <div v-else-if="pageStatus === 'loaded'" class="post-list">
           <HomePost v-for="post in posts" :key="post.id" :post="post" />
           <div class="pagination">
-            <button v-show="totalPages > 2 && currentPage >= 2" class="icon-button icon-button__secondary icon-button__small" @click="goToFirstPage()">
+            <button v-show="totalPages > 2 && currentPage >= 2" class="icon-button icon-button__secondary icon-button__small" title="Pierwsza strona" @click="goToFirstPage()">
               <ChevronDoubleLeftIcon class="icon" />
             </button>
-            <button  v-show="currentPage >= 1" class="icon-button icon-button__secondary icon-button__small" @click="prevPage()">
+            <button v-show="currentPage >= 1" class="icon-button icon-button__secondary icon-button__small" title="Poprzednia strona" @click="prevPage()">
               <ChevronLeftIcon class="icon" />
             </button>
             <div class="current-page">
               {{ currentPage + 1 }} / {{ totalPages }}
             </div>
-            <button v-show="currentPage + 1 < totalPages" class="icon-button icon-button__secondary icon-button__small" @click="nextPage()">
+            <button v-show="currentPage + 1 < totalPages" class="icon-button icon-button__secondary icon-button__small" title="Następna strona" @click="nextPage()">
               <ChevronRightIcon class="icon" />
             </button>
-            <button v-show="totalPages > 2 && currentPage < totalPages - 1" class="icon-button icon-button__secondary icon-button__small" @click="goToLastPage()">
+            <button v-show="totalPages > 2 && currentPage < totalPages - 1" class="icon-button icon-button__secondary icon-button__small" title="Ostatnia strona" @click="goToLastPage()">
               <ChevronDoubleRightIcon class="icon" />
             </button>
           </div>

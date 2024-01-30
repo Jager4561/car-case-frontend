@@ -27,7 +27,7 @@ const confirmExit = async () => {
         <span> Niezapisane zmiany </span>
       </div>
       <div class="header-actions">
-        <button class="icon-button icon-button__medium icon-button__secondary" @click="close()">
+        <button class="icon-button icon-button__medium icon-button__secondary" title="Zamknij" @click="close()">
           <XMarkIcon class="button-icon"></XMarkIcon>
         </button>
       </div>

@@ -109,15 +109,15 @@ const goToCommentsSection = () => {
             <span>Statystyki</span>
           </div>
           <div class="rating-stats">
-            <button :disabled="!isLoggedIn" class="stat" :class="{ 'like-active': post.isLiked }" @click="!post.isLiked ? ratePost(post.id, true) : deleteRating(post.id)">
+            <button :disabled="!isLoggedIn" class="stat" title="Lubię instrukcję" :class="{ 'like-active': post.isLiked }" @click="!post.isLiked ? ratePost(post.id, true) : deleteRating(post.id)">
               <HandThumbUpIcon class="icon" />
               <span>{{ props.post.likes }}</span>
             </button>
-            <button :disabled="!isLoggedIn" class="stat" :class="{ 'dislike-active': post.isDisliked }" @click="!post.isDisliked ? ratePost(post.id, false) : deleteRating(post.id)">
+            <button :disabled="!isLoggedIn" class="stat" :class="{ 'dislike-active': post.isDisliked }" title="Nie lubię instrukcji" @click="!post.isDisliked ? ratePost(post.id, false) : deleteRating(post.id)">
               <HandThumbDownIcon class="icon" />
               <span>{{ props.post.dislikes }}</span>
             </button>
-            <button class="stat" @click="goToCommentsSection()">
+            <button class="stat" title="Sekcja komentarzy" @click="goToCommentsSection()">
               <ChatBubbleLeftRightIcon class="icon" />
               <span>{{ commentsCount }}</span>
             </button>

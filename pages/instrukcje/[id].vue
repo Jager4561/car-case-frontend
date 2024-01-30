@@ -165,7 +165,7 @@ watch(
             </div>
             <div class="actions">
               <div class="options">
-                <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" @click="toggleOptions()">
+                <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" title="Opcje" @click="toggleOptions()">
                   <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
                 </button>
                 <Transition name="list">

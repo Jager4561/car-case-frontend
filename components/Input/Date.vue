@@ -181,13 +181,13 @@ const isClickedOutside = (event: MouseEvent) => {
         <Transition name="fade" mode="out-in">
           <div v-if="!yearSelectOpen" class="date-select">
             <div class="header">
-              <button class="icon-button icon-button__secondary icon-button__small" @click="goToPreviousMonth()">
+              <button class="icon-button icon-button__secondary icon-button__small" title="Poprzedni miesiąc" @click="goToPreviousMonth()">
                 <ChevronLeftIcon />
               </button>
               <button class="text-button text-button__thertiary text-button__small" @click="openYearSelect()">
                 <span>{{ monthsNames[currentMonth] + ' ' + currentYear }}</span>
               </button>
-              <button class="icon-button icon-button__secondary icon-button__small" @click="goToNextMonth()">
+              <button class="icon-button icon-button__secondary icon-button__small" title="Następny miesiąc" @click="goToNextMonth()">
                 <ChevronRightIcon />
               </button>
             </div>
