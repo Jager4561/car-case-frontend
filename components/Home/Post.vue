@@ -116,39 +116,41 @@ watch(
     <div class="post__container">
       <div class="post_header">
         <NuxtLink :to="'/instrukcje/' + props.post.id" class="title" :title="props.post.title">{{ props.post.title }}</NuxtLink>
-        <div class="publish_info">
-          <div v-if="isLoggedIn && account && props.post.author && props.post.author.id == account.id && props.post.status === 'draft'" class="draft-mark">
-              Nieopublikowany
+        <div class="header-end">
+          <div class="publish_info">
+            <div v-if="isLoggedIn && account && props.post.author && props.post.author.id == account.id && props.post.status === 'draft'" class="draft-mark">
+                Nieopublikowany
+              </div>
+            <div class="created">
+              <CalendarIcon class="icon" />
+              <span>{{ dayjs(props.post.date_created).fromNow() }}</span>
             </div>
-          <div class="created">
-            <CalendarIcon class="icon" />
-            <span>{{ dayjs(props.post.date_created).fromNow() }}</span>
-          </div>
-          <div v-if="props.post.date_updated != null" class="modified">
-            <PencilSquareIcon class="icon" />
-            <span>{{ dayjs(props.post.date_updated).fromNow() }}</span>
-          </div>
-        </div>
-        <div class="options">
-          <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" title="Opcje" @click="toggleOptions()">
-            <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
-          </button>
-          <Transition name="list">
-            <div v-show="optionsVisible" ref="optionsList" class="comment-options">
-              <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option" @click="editPost()">
-                <PencilIcon class="option-icon"></PencilIcon>
-                <span>Edytuj</span>
-              </button>
-              <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option destructive" @click="removePost()">
-                <TrashIcon class="option-icon"></TrashIcon>
-                <span>Usuń</span>
-              </button>
-              <button v-if="!isLoggedIn || !account || !post.author || post.author.id != account.id" :disabled="postLock" class="option" @click="reportPost()">
-                <FlagIcon class="option-icon"></FlagIcon>
-                <span>Zgłoś</span>
-              </button>
+            <div v-if="props.post.date_updated != null" class="modified">
+              <PencilSquareIcon class="icon" />
+              <span>{{ dayjs(props.post.date_updated).fromNow() }}</span>
             </div>
-          </Transition>
+          </div>
+          <div class="options">
+            <button ref="optionsButton" class="icon-button icon-button__secondary icon-button__small" title="Opcje" @click="toggleOptions()">
+              <EllipsisVerticalIcon class="button-icon"></EllipsisVerticalIcon>
+            </button>
+            <Transition name="list">
+              <div v-show="optionsVisible" ref="optionsList" class="comment-options">
+                <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option" @click="editPost()">
+                  <PencilIcon class="option-icon"></PencilIcon>
+                  <span>Edytuj</span>
+                </button>
+                <button v-if="isLoggedIn && account && post.author && post.author.id === account.id" :disabled="postLock" class="option destructive" @click="removePost()">
+                  <TrashIcon class="option-icon"></TrashIcon>
+                  <span>Usuń</span>
+                </button>
+                <button v-if="!isLoggedIn || !account || !post.author || post.author.id != account.id" :disabled="postLock" class="option" @click="reportPost()">
+                  <FlagIcon class="option-icon"></FlagIcon>
+                  <span>Zgłoś</span>
+                </button>
+              </div>
+            </Transition>
+          </div>
         </div>
       </div>
       <NuxtLink :to="'/instrukcje/' + props.post.id" class="short_description">
@@ -230,19 +232,23 @@ watch(
     @apply hover:ring-1 hover:ring-darkCyan;
 
     .post_header {
-      @apply w-full h-auto flex flex-wrap items-start justify-between pb-4 cursor-pointer;
+      @apply w-full h-auto flex flex-col-reverse items-start justify-between pb-4 cursor-pointer;
       @apply sm:flex-row sm:space-x-4 sm:space-y-0;
-      @apply md:flex-nowrap;
+      @apply md:flex-nowrap md:space-x-4;
 
       .title {
-        width: calc(100% - theme('spacing.8'));
-        @apply order-1 font-bold text-lg overflow-hidden whitespace-nowrap text-ellipsis;
+        @apply w-full flex-grow order-1 font-bold text-lg mb-1;
         @apply sm:flex-grow sm:order-none;
       }
 
+      .header-end {
+        @apply w-full h-auto flex flex-row-reverse items-center justify-between;
+        @apply sm:w-auto sm:flex-row sm:justify-end sm:space-x-2 sm:flex-shrink-0;
+      }
+
       .publish_info {
-        @apply order-3 flex-shrink-0 w-full h-auto flex items-center space-x-2 pt-2;
-        @apply sm:w-auto sm:pt-1 sm:order-none;
+        @apply order-3 flex-shrink-0 w-auto h-auto flex items-center space-x-2;
+        @apply sm:w-auto sm:order-none;
 
         .created,
         .modified {
@@ -299,7 +305,7 @@ watch(
     }
 
     .short_description {
-      @apply w-full h-auto text-sm;
+      @apply block w-full h-auto text-sm;
     }
 
     .spacer {

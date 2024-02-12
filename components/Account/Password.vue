@@ -56,6 +56,9 @@ const onFormSubmit = async () => {
       new_password: inputs.newPassword,
     });
     createSuccessToast('Zmiana hasła', 'Hasło zostało zmienione.');
+    form.value.currentPassword.$model = '';
+    form.value.newPassword.$model = '';
+    form.value.confirmPassword.$model = '';
     form.value.$reset();
   } catch (error: any) {
     console.error(error);

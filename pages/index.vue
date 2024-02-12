@@ -374,9 +374,9 @@ watch(() => route.query, () => {
   @apply lg:pb-0;
 
   &__filters {
-    @apply fixed bottom-[72px] left-0 bg-zinc-900 bg-opacity-50 w-full h-full z-20;
+    @apply fixed bottom-[72px] left-0 bg-zinc-900 bg-opacity-50 w-full z-20;
     height: calc(100vh - theme('spacing.20') - 72px);
-    @apply lg:sticky lg:top-20 lg:left-0 lg:border-r lg:border-r-zinc-700 lg:max-w-xs;
+    @apply lg:flex-shrink-0 lg:sticky lg:top-20 lg:left-0 lg:border-r lg:border-r-zinc-700 lg:max-w-xs;
 
     @screen lg {
       height: calc(100vh - theme('spacing.20'));
@@ -390,7 +390,7 @@ watch(() => route.query, () => {
   }
 
   .content {
-    @apply w-full h-auto p-4;
+    @apply flex-grow w-auto h-auto p-4;
     @apply lg:p-6;
 
     .post-list {
@@ -469,7 +469,7 @@ watch(() => route.query, () => {
   .right_bar {
     @apply fixed bottom-[72px] right-0 bg-zinc-900 bg-opacity-50 w-full h-full flex justify-end;
     height: calc(100vh - theme('spacing.20') - 72px);
-    @apply lg:sticky lg:top-20 lg:bottom-auto lg:bg-transparent lg:max-w-xs;
+    @apply lg:flex-shrink-0 lg:sticky lg:top-20 lg:bottom-auto lg:bg-transparent lg:max-w-xs;
     @screen lg {
       height: calc(100vh - theme('spacing.20'));
     }

@@ -3,18 +3,22 @@ import { FiltersData } from './filters.model';
 export const useFilters = () => {
   const runtimeConfig = useRuntimeConfig();
 
+  const errorOccured = useState<boolean>('filtersErrorOccured', () => false);
   const filtersData = useState<FiltersData | null>('filtersData', () => null);
   const fetchPending = useState<boolean>('filtersFetchPending', () => false);
 
   const fetchFiltersData = async () => {
     fetchPending.value = true;
     const response = await fetch(`${runtimeConfig.public.apiUrl}/models/filters`);
-    if(!response.ok) {
-      throw new Error('Error fetching filters data');
-    }
     const data = await response.json();
-    filtersData.value = data;
     fetchPending.value = false;
+    if(!response.ok) {
+      errorOccured.value = true;
+      throw new Error('Error fetching filters');
+    } else {
+      errorOccured.value = false;
+    }
+    filtersData.value = data;
     return data;
   }
 
@@ -25,6 +29,7 @@ export const useFilters = () => {
 
   return {
     filtersData,
+    errorOccured,
     fetchPending,
     fetchFiltersData,
     resetState

@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { useModelsState } from '@/composables/store/vehicle-models/useModels';
 import { ModelsFilterRules } from '@/composables/store/filters/filters.model';
 
-const { models, fetchPending, fetchModels } = useModelsState();
+const { models, errorOccured, fetchPending, fetchModels } = useModelsState();
 const filters = ref<ModelsFilterRules>({
   search: null,
   sort: 'default',
@@ -203,6 +203,12 @@ onMounted(() => {
 
 watch(models, () => {
   loadModels();
+});
+
+watch(errorOccured, () => {
+  if(errorOccured.value) {
+    pageStatus.value = 'error';
+  }
 });
 </script>
 
