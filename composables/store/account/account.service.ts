@@ -49,6 +49,7 @@ export const useAccountService = () => {
     requestAvatarChange,
     requestAvatarRemoval,
     requestAccountUpdate,
-    requestPasswordChange
+    requestPasswordChange,
+    requestAccountDeletion
   }
 }

@@ -7,6 +7,7 @@ export const useAccount = () => {
     requestAvatarRemoval,
     requestAccountUpdate,
     requestPasswordChange,
+    requestAccountDeletion
   } = useAccountService();
 
   const account = useState<Account | null>('account', () => null);

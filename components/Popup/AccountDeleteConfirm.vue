@@ -27,6 +27,7 @@ const confirmAccountDeletion = async () => {
     accountState.resetState();
     deleteSession();
     close();
+    navigateTo('/');
   } catch(error) {
     createErrorToast('Usuwanie konta', 'Wystąpił błąd podczas usuwania konta. Spróbuj ponownie później.');
     console.error(error);
