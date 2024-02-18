@@ -17,9 +17,9 @@ useSeoMeta({
   title: 'Ładowanie...',
 });
 
-onBeforeMount(async () => {
+onMounted(async () => {
   initSessionState();
-  if (isLoggedIn) {
+  if (isLoggedIn.value) {
     try {
       await performRequest('GET', '/auth/ping');
       appState.value = 'loaded';
@@ -36,7 +36,7 @@ onBeforeMount(async () => {
 <template>
   <main class="app">
     <Transition name="fade" mode="out-in">
-      <div class="loading" v-if="appState === 'loading'">
+      <div  v-if="appState === 'loading'" class="loading">
         <h1>Car<span class="highlight">Case</span></h1>
         <div class="description">Ładowanie aplikacji</div>
         <div class="loader">

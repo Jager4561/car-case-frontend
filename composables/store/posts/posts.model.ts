@@ -62,17 +62,17 @@ export interface PostComment {
   status: 'published' | 'deleted' | 'blocked';
   date_created: string;
   date_updated: string | null;
-  author: {
+  author?: {
     id: string;
     name: string;
     avatar: string;
   };
-  content: string;
-  likes: number;
-  dislikes: number;
-  isLiked: boolean;
-  isDisliked: boolean;
-  isUserComment: boolean;
+  content?: string;
+  likes?: number;
+  dislikes?: number;
+  isLiked?: boolean;
+  isDisliked?: boolean;
+  isUserComment?: boolean;
   children?: PostComment[];
 }
 
